@@ -2,6 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
 import { Menu, X, ShoppingCart } from "lucide-react";
 import { Button } from "./ui/button";
+import logo from "@/assets/logo.png";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -22,8 +23,15 @@ export const Navigation = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link to="/" className="font-serif text-2xl md:text-3xl font-bold tracking-tight text-primary hover:text-primary/80 transition-colors">
-            Ricos Tacos
+          <Link to="/" className="flex items-center gap-3 group">
+            <img 
+              src={logo} 
+              alt="Ricos Tacos" 
+              className="h-12 w-12 transition-transform group-hover:scale-105"
+            />
+            <span className="font-serif text-2xl md:text-3xl font-bold tracking-tight text-primary group-hover:text-primary/80 transition-colors">
+              Ricos Tacos
+            </span>
           </Link>
 
           {/* Desktop Navigation */}
