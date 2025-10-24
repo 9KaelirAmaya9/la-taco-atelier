@@ -1,4 +1,7 @@
-export const translations = {
+type TranslationKey = string;
+type Translations = Record<TranslationKey, string>;
+
+export const translations: Record<"en" | "es", Translations> = {
   en: {
     // Navigation
     "nav.home": "Home",
@@ -229,6 +232,7 @@ export const translations = {
   }
 };
 
+
 export const getTranslation = (language: "en" | "es", key: string): string => {
-  return translations[language][key as keyof typeof translations.en] || key;
+  return translations[language][key] || key;
 };
