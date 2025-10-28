@@ -78,9 +78,9 @@ const Order = () => {
               {/* Items Grid */}
               <div className="grid sm:grid-cols-2 gap-4">
                 {filteredItems.map((item) => (
-                  <Card key={item.id} className="overflow-hidden hover:shadow-elegant transition-all group">
+                  <Card key={item.id} className="overflow-hidden hover:shadow-elegant transition-all group flex flex-col">
                     {item.image && (
-                      <div className="relative h-40 overflow-hidden">
+                      <div className="relative h-40 overflow-hidden flex-shrink-0">
                         <img 
                           src={item.image} 
                           alt={item.name}
@@ -88,24 +88,22 @@ const Order = () => {
                         />
                       </div>
                     )}
-                    <div className="p-5 flex flex-col h-full">
-                      <div className="flex-1">
-                        <div className="flex items-start justify-between mb-2">
-                          <h3 className="font-serif text-lg font-semibold">
-                            {getMenuItemName(item.id, language, item.name)}
-                          </h3>
-                          <span className="text-lg font-semibold text-primary whitespace-nowrap ml-2">
-                            ${item.price.toFixed(2)}
-                          </span>
-                        </div>
-                        {item.description && (
-                          <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-                            {getMenuItemDescription(item.id, language, item.description)}
-                          </p>
-                        )}
-                        <div className="text-xs text-muted-foreground">
-                          {item.category}
-                        </div>
+                    <div className="p-5 flex flex-col flex-1">
+                      <div className="flex items-start justify-between mb-2">
+                        <h3 className="font-serif text-lg font-semibold">
+                          {getMenuItemName(item.id, language, item.name)}
+                        </h3>
+                        <span className="text-lg font-semibold text-primary whitespace-nowrap ml-2">
+                          ${item.price.toFixed(2)}
+                        </span>
+                      </div>
+                      {item.description && (
+                        <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                          {getMenuItemDescription(item.id, language, item.description)}
+                        </p>
+                      )}
+                      <div className="text-xs text-muted-foreground mb-4">
+                        {item.category}
                       </div>
                       
                       <Button 
@@ -116,7 +114,7 @@ const Order = () => {
                           price: item.price,
                           image: item.image 
                         })}
-                        className="w-full mt-4 gap-2"
+                        className="w-full mt-auto gap-2"
                       >
                         <Plus className="h-4 w-4" />
                         {t("order.addToCart")}
