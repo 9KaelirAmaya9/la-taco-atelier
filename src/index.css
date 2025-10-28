@@ -8,56 +8,57 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Sophisticated LA taco restaurant palette - terracotta, cream, sage */
-    --background: 42 45% 96%;
-    --foreground: 25 20% 20%;
+    /* Ricos Tacos palette - inspired by logo: golden yellow, red, orange */
+    --background: 45 100% 94%;
+    --foreground: 0 80% 25%;
 
-    --card: 40 50% 98%;
-    --card-foreground: 25 20% 20%;
+    --card: 45 100% 97%;
+    --card-foreground: 0 80% 25%;
 
-    --popover: 40 50% 98%;
-    --popover-foreground: 25 20% 20%;
+    --popover: 45 100% 97%;
+    --popover-foreground: 0 80% 25%;
 
-    /* Terracotta primary */
-    --primary: 18 50% 55%;
-    --primary-foreground: 40 50% 98%;
+    /* Red primary from logo */
+    --primary: 0 70% 45%;
+    --primary-foreground: 45 100% 94%;
 
-    /* Sage secondary */
-    --secondary: 115 18% 65%;
-    --secondary-foreground: 25 20% 20%;
+    /* Orange secondary */
+    --secondary: 30 90% 55%;
+    --secondary-foreground: 0 80% 25%;
 
-    /* Muted sage tones */
-    --muted: 115 15% 88%;
-    --muted-foreground: 115 10% 45%;
+    /* Muted golden tones */
+    --muted: 45 70% 85%;
+    --muted-foreground: 45 40% 40%;
 
     /* Warm accent */
-    --accent: 18 50% 55%;
-    --accent-foreground: 40 50% 98%;
+    --accent: 30 90% 55%;
+    --accent-foreground: 0 80% 25%;
 
     --destructive: 0 70% 50%;
-    --destructive-foreground: 40 50% 98%;
+    --destructive-foreground: 45 100% 94%;
 
-    --border: 115 15% 85%;
-    --input: 115 15% 85%;
-    --ring: 18 50% 55%;
+    --border: 45 50% 80%;
+    --input: 45 50% 80%;
+    --ring: 0 70% 45%;
 
     --radius: 0.75rem;
 
-    /* Custom design tokens */
-    --terracotta: 18 50% 55%;
-    --terracotta-light: 18 40% 70%;
-    --terracotta-dark: 18 55% 40%;
-    --cream: 42 45% 96%;
-    --cream-dark: 40 40% 92%;
-    --sage: 115 18% 65%;
-    --sage-light: 115 15% 88%;
-    --sage-dark: 115 20% 50%;
+    /* Custom design tokens - Ricos Tacos colors */
+    --golden-yellow: 45 100% 70%;
+    --golden-light: 45 100% 85%;
+    --golden-dark: 45 100% 55%;
+    --rico-red: 0 70% 45%;
+    --rico-red-light: 0 60% 60%;
+    --rico-red-dark: 0 80% 35%;
+    --rico-orange: 30 90% 55%;
+    --rico-orange-light: 30 80% 70%;
+    --rico-orange-dark: 30 100% 45%;
     
     /* Typography */
     --font-serif: 'Cormorant Garamond', serif;
     --font-sans: 'Inter', sans-serif;
 
-    /* Shadows with terracotta glow */
+    /* Shadows with warm glow */
     --shadow-elegant: 0 10px 40px -10px hsl(18 50% 55% / 0.15);
     --shadow-soft: 0 4px 20px -4px hsl(18 50% 55% / 0.08);
     

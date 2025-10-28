@@ -1,5 +1,6 @@
 import { Navigation } from "@/components/Navigation";
 import { menuItems, menuCategories } from "@/data/menuData";
+import { getMenuItemName, getMenuItemDescription } from "@/data/menuTranslations";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -17,7 +18,7 @@ interface CartItem {
 }
 
 const Order = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [orderType, setOrderType] = useState<"pickup" | "delivery">("pickup");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -126,7 +127,7 @@ const Order = () => {
                       <div className="flex-1">
                         <div className="flex items-start justify-between mb-2">
                           <h3 className="font-serif text-lg font-semibold">
-                            {item.name}
+                            {getMenuItemName(item.id, language, item.name)}
                           </h3>
                           <span className="text-lg font-semibold text-primary whitespace-nowrap ml-2">
                             ${item.price.toFixed(2)}
@@ -134,7 +135,7 @@ const Order = () => {
                         </div>
                         {item.description && (
                           <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-                            {item.description}
+                            {getMenuItemDescription(item.id, language, item.description)}
                           </p>
                         )}
                         <div className="text-xs text-muted-foreground">

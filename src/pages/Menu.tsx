@@ -1,5 +1,6 @@
 import { Navigation } from "@/components/Navigation";
 import { menuItems, menuCategories } from "@/data/menuData";
+import { getMenuItemName, getMenuItemDescription } from "@/data/menuTranslations";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -7,7 +8,7 @@ import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const Menu = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const handleAddToCart = (itemName: string) => {
     toast.success(`${itemName} ${t("menu.addToCart")}`);
@@ -57,11 +58,11 @@ const Menu = () => {
                         <div className="p-6 flex flex-col h-full">
                           <div className="flex-1">
                             <h3 className="font-serif text-xl font-semibold mb-2 group-hover:text-primary transition-colors">
-                              {item.name}
+                              {getMenuItemName(item.id, language, item.name)}
                             </h3>
                             {item.description && (
                               <p className="text-sm text-muted-foreground mb-4">
-                                {item.description}
+                                {getMenuItemDescription(item.id, language, item.description)}
                               </p>
                             )}
                           </div>

@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import heroImage from "@/assets/hero-tacos.jpg";
-import interiorImage from "@/assets/restaurant-interior.jpg";
-import logo from "@/assets/logo.png";
+import interiorImage from "@/assets/puebla-traditional.jpg";
+import logo from "@/assets/ricos-tacos-logo.png";
 
 const Index = () => {
   const { t } = useLanguage();
@@ -75,7 +75,7 @@ const Index = () => {
             <div className="relative h-[500px] rounded-2xl overflow-hidden shadow-elegant">
               <img 
                 src={interiorImage} 
-                alt="Restaurant interior" 
+                alt="Traditional Puebla restaurant interior" 
                 className="w-full h-full object-cover"
               />
             </div>

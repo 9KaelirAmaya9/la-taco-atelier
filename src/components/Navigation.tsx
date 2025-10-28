@@ -4,7 +4,7 @@ import { Menu, X, ShoppingCart } from "lucide-react";
 import { Button } from "./ui/button";
 import { LanguageSwitch } from "./LanguageSwitch";
 import { useLanguage } from "@/contexts/LanguageContext";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/ricos-tacos-logo.png";
 import {
   NavigationMenu,
   NavigationMenuContent,
