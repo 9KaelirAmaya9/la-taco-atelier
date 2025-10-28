@@ -4,14 +4,20 @@ import { getMenuItemName, getMenuItemDescription } from "@/data/menuTranslations
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { toast } from "sonner";
+import { useCart } from "@/contexts/CartContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const Menu = () => {
   const { t, language } = useLanguage();
+  const { addToCart } = useCart();
 
-  const handleAddToCart = (itemName: string) => {
-    toast.success(`${itemName} ${t("menu.addToCart")}`);
+  const handleAddToCart = (item: { id: string; name: string; price: number; image?: string }) => {
+    addToCart({
+      id: item.id,
+      name: getMenuItemName(item.id, language, item.name),
+      price: item.price,
+      image: item.image,
+    });
   };
 
   return (
@@ -73,7 +79,7 @@ const Menu = () => {
                             </span>
                             <Button 
                               size="sm" 
-                              onClick={() => handleAddToCart(item.name)}
+                              onClick={() => handleAddToCart(item)}
                               className="gap-2"
                             >
                               <Plus className="h-4 w-4" />
