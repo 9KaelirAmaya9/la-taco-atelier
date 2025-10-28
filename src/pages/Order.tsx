@@ -9,60 +9,25 @@ import { Plus, Minus, ShoppingCart } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
-
-interface CartItem {
-  id: string;
-  name: string;
-  price: number;
-  quantity: number;
-}
+import { useCart } from "@/contexts/CartContext";
+import { useNavigate } from "react-router-dom";
 
 const Order = () => {
   const { t, language } = useLanguage();
-  const [orderType, setOrderType] = useState<"pickup" | "delivery">("pickup");
+  const navigate = useNavigate();
+  const { cart, orderType, setOrderType, addToCart, updateQuantity, cartTotal, cartCount } = useCart();
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [cart, setCart] = useState<CartItem[]>([]);
 
   const filteredItems = selectedCategory === "All" 
     ? menuItems 
     : menuItems.filter(item => item.category === selectedCategory);
-
-  const addToCart = (item: { id: string; name: string; price: number }) => {
-    setCart(prevCart => {
-      const existingItem = prevCart.find(cartItem => cartItem.id === item.id);
-      if (existingItem) {
-        return prevCart.map(cartItem =>
-          cartItem.id === item.id
-            ? { ...cartItem, quantity: cartItem.quantity + 1 }
-            : cartItem
-        );
-      }
-      return [...prevCart, { ...item, quantity: 1 }];
-    });
-    toast.success(`${item.name} ${t("menu.addToCart")}`);
-  };
-
-  const updateQuantity = (id: string, delta: number) => {
-    setCart(prevCart => {
-      const updatedCart = prevCart.map(item =>
-        item.id === id
-          ? { ...item, quantity: Math.max(0, item.quantity + delta) }
-          : item
-      ).filter(item => item.quantity > 0);
-      return updatedCart;
-    });
-  };
-
-  const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   const handleCheckout = () => {
     if (cart.length === 0) {
       toast.error(t("order.cartEmpty"));
       return;
     }
-    toast.success(`${t("order.placed")} ${orderType}!`);
-    setCart([]);
+    navigate("/cart");
   };
 
   return (
@@ -145,7 +110,12 @@ const Order = () => {
                       
                       <Button 
                         size="sm" 
-                        onClick={() => addToCart(item)}
+                        onClick={() => addToCart({ 
+                          id: item.id, 
+                          name: getMenuItemName(item.id, language, item.name), 
+                          price: item.price,
+                          image: item.image 
+                        })}
                         className="w-full mt-4 gap-2"
                       >
                         <Plus className="h-4 w-4" />

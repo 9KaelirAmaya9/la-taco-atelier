@@ -4,6 +4,7 @@ import { Menu, X, ShoppingCart } from "lucide-react";
 import { Button } from "./ui/button";
 import { LanguageSwitch } from "./LanguageSwitch";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useCart } from "@/contexts/CartContext";
 import logo from "@/assets/ricos-tacos-logo.png";
 import {
   NavigationMenu,
@@ -18,6 +19,7 @@ export const Navigation = () => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { t } = useLanguage();
+  const { cartCount } = useCart();
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -32,9 +34,21 @@ export const Navigation = () => {
               alt="Ricos Tacos" 
               className="h-16 w-16 md:h-20 md:w-20 transition-transform group-hover:scale-105"
             />
-            <span className="hidden sm:block font-serif text-2xl md:text-3xl font-bold tracking-tight text-primary group-hover:text-primary/80 transition-colors">
-              Ricos Tacos
-            </span>
+            <div className="hidden sm:flex flex-col items-start">
+              <span className="font-serif text-xs md:text-sm font-semibold tracking-wider text-foreground/80 uppercase">
+                Piaxtla es México Deli
+              </span>
+              <span className="font-serif text-2xl md:text-3xl font-bold tracking-tight text-primary group-hover:text-primary/80 transition-colors">
+                Ricos Tacos
+              </span>
+              <div className="flex gap-1 mt-0.5">
+                <div className="w-2 h-2 bg-primary rounded-full"></div>
+                <div className="w-2 h-2 bg-secondary rounded-full"></div>
+                <div className="w-2 h-2 bg-accent rounded-full"></div>
+                <div className="w-2 h-2 bg-primary rounded-full"></div>
+                <div className="w-2 h-2 bg-secondary rounded-full"></div>
+              </div>
+            </div>
           </Link>
 
           {/* Desktop Navigation */}
@@ -100,6 +114,11 @@ export const Navigation = () => {
             <Link to="/cart">
               <Button variant="outline" size="icon" className="relative">
                 <ShoppingCart className="h-5 w-5" />
+                {cartCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs font-semibold">
+                    {cartCount}
+                  </span>
+                )}
               </Button>
             </Link>
           </div>
