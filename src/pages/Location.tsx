@@ -61,13 +61,13 @@ const Location = () => {
                     <div className="text-muted-foreground space-y-1">
                       <p>
                         <span className="font-medium">Tel:</span>{" "}
-                        <a href="tel:7186334816" className="hover:text-primary transition-colors">
+                        <a href="tel:7186334816" className="hover:text-primary transition-colors font-semibold">
                           (718) 633-4816
                         </a>
                       </p>
                       <p>
                         <span className="font-medium">Cell:</span>{" "}
-                        <a href="tel:9173700430" className="hover:text-primary transition-colors">
+                        <a href="tel:9173700430" className="hover:text-primary transition-colors font-semibold">
                           (917) 370-0430
                         </a>
                       </p>

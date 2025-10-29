@@ -6,8 +6,8 @@ import { cn } from "@/lib/utils";
 export const FloatingContactButton = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   
-  const phoneNumber = "+15555551234"; // Replace with actual number
-  const whatsappNumber = "15555551234"; // Replace with actual number (no + or -)
+  const phoneNumber = "+19173555183";
+  const whatsappNumber = "19173555183";
   
   const handleCall = () => {
     window.location.href = `tel:${phoneNumber}`;
