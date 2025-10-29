@@ -5,7 +5,7 @@ import { Button } from "./ui/button";
 import { LanguageSwitch } from "./LanguageSwitch";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCart } from "@/contexts/CartContext";
-import logo from "@/assets/ricos-tacos-logo.png";
+import logo from "@/assets/ricos-tacos-header-logo.png";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -32,7 +32,8 @@ export const Navigation = () => {
             <img 
               src={logo} 
               alt="Ricos Tacos" 
-              className="h-16 w-16 md:h-20 md:w-20 transition-transform group-hover:scale-105"
+              className="h-16 w-16 md:h-20 md:w-20 transition-transform group-hover:scale-105 rounded-lg"
+              style={{ backgroundColor: 'hsl(72, 100%, 82%)' }}
             />
             <div className="hidden sm:flex flex-col items-start">
               <span className="font-serif text-xs md:text-sm font-semibold tracking-wider text-foreground/80 uppercase">
