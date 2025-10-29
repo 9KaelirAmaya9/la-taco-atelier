@@ -45,7 +45,7 @@ const Cart = () => {
       const tax = subtotal * 0.08; // 8% tax
       const total = subtotal + tax;
 
-      const { error } = await supabase
+      const { data: orderData, error } = await supabase
         .from("orders")
         .insert({
           order_number: "",
@@ -59,11 +59,35 @@ const Cart = () => {
           tax,
           total,
           notes: customerInfo.notes || null,
-        });
+        })
+        .select()
+        .single();
 
       if (error) throw error;
 
-      toast.success(`${t("order.placed")} for ${orderType}!`);
+      // Send notification
+      try {
+        await supabase.functions.invoke('send-order-notification', {
+          body: {
+            orderNumber: orderData.order_number,
+            customerName: customerInfo.name,
+            customerEmail: customerInfo.email || null,
+            customerPhone: customerInfo.phone,
+            orderType: orderType,
+            total: total,
+            items: cart.map(item => ({
+              name: item.name,
+              quantity: item.quantity,
+              price: item.price * item.quantity
+            }))
+          }
+        });
+      } catch (notifError) {
+        console.error('Notification error:', notifError);
+        // Don't fail the order if notification fails
+      }
+
+      toast.success(`${t("order.placed")} #${orderData.order_number} for ${orderType}!`);
       clearCart();
       setCustomerInfo({ name: "", phone: "", email: "", address: "", notes: "" });
     } catch (error: any) {
