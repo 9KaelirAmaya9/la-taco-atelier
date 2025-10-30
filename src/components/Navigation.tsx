@@ -41,7 +41,13 @@ export const Navigation = () => {
               <span className="font-serif text-2xl md:text-3xl font-bold tracking-tight text-primary group-hover:text-primary/80 transition-colors">
                 Ricos Tacos
               </span>
-              <div className="h-0.5 w-24 bg-gradient-to-r from-sage-green via-sage-green/70 to-transparent mt-1"></div>
+              <div className="flex gap-1 mt-0.5">
+                <div className="w-2 h-2 bg-sage-green rounded-full"></div>
+                <div className="w-2 h-2 bg-primary rounded-full"></div>
+                <div className="w-2 h-2 bg-sage-green/70 rounded-full"></div>
+                <div className="w-2 h-2 bg-accent rounded-full"></div>
+                <div className="w-2 h-2 bg-sage-green rounded-full"></div>
+              </div>
             </div>
           </Link>
 
