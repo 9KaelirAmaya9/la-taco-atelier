@@ -125,6 +125,11 @@ import tacosPlazeros from "@/assets/menu/tacos-plazeros.jpg";
 import chalupas from "@/assets/menu/chalupas.jpg";
 import frenchFries from "@/assets/menu/french-fries.jpg";
 import chickenNuggets from "@/assets/menu/chicken-nuggets.jpg";
+import chickenTendersFries from "@/assets/menu/chicken-tenders-fries.jpg";
+import nuggetsFries from "@/assets/menu/nuggets-fries.jpg";
+import quesadillaFries from "@/assets/menu/quesadilla-fries.jpg";
+import salchipapas from "@/assets/menu/salchipapas.jpg";
+import friedChickenFries from "@/assets/menu/fried-chicken-fries.jpg";
 import fajitasArabe from "@/assets/menu/fajitas-arabe.jpg";
 import quesillo from "@/assets/menu/quesillo.jpg";
 import picoDeGallo from "@/assets/menu/pico-de-gallo.jpg";
@@ -305,13 +310,13 @@ export const menuItems: MenuItem[] = [
   { id: "p27", name: "Parrilladas", description: "Mixed grill platter with assorted meats for sharing", price: 24.99, category: "Main Platillos", image: parrilladas },
 
   // Kids Menu
-  { id: "k1", name: "French Fries", description: "Classic crispy golden fries", price: 6.00, category: "Kids Menu", image: frenchFries },
-  { id: "k2", name: "Chicken Nuggets", description: "Golden crispy chicken nuggets", price: 6.00, category: "Kids Menu", image: chickenNuggets },
-  { id: "k3", name: "Chicken Tenders & Fries", description: "Crispy chicken tenders served with golden fries", price: 8.00, category: "Kids Menu", image: chickenNuggets },
-  { id: "k4", name: "Nuggets & Fries Meal", description: "Chicken nuggets with a side of crispy fries", price: 8.00, category: "Kids Menu", image: chickenNuggets },
-  { id: "k5", name: "Chicken Quesadilla & Fries", description: "Cheesy chicken quesadilla with golden fries", price: 9.00, category: "Kids Menu", image: quesadilla },
-  { id: "k6", name: "Salchipapas", description: "Sliced hot dogs with crispy fries, a kids favorite", price: 7.00, category: "Kids Menu", image: frenchFries },
-  { id: "k7", name: "Fried Chicken & Fries", description: "Crispy fried chicken wings with fries - Choose your flavor: Mango Habanero, Buffalo, or BBQ", price: 10.00, category: "Kids Menu", image: chickenNuggets },
+  { id: "k1", name: "French Fries", description: "Classic crispy golden fries", price: 12.00, category: "Kids Menu", image: frenchFries },
+  { id: "k2", name: "Chicken Nuggets", description: "Golden crispy chicken nuggets", price: 12.00, category: "Kids Menu", image: chickenNuggets },
+  { id: "k3", name: "Chicken Tenders & Fries", description: "Crispy chicken tenders served with golden fries", price: 12.00, category: "Kids Menu", image: chickenTendersFries },
+  { id: "k4", name: "Nuggets & Fries Meal", description: "Chicken nuggets with a side of crispy fries", price: 12.00, category: "Kids Menu", image: nuggetsFries },
+  { id: "k5", name: "Chicken Quesadilla & Fries", description: "Cheesy chicken quesadilla with golden fries", price: 12.00, category: "Kids Menu", image: quesadillaFries },
+  { id: "k6", name: "Salchipapas", description: "Sliced hot dogs with crispy fries, a kids favorite", price: 12.00, category: "Kids Menu", image: salchipapas },
+  { id: "k7", name: "Fried Chicken & Fries", description: "Crispy fried chicken wings with fries - Choose your flavor: Mango Habanero, Buffalo, or BBQ", price: 12.00, category: "Kids Menu", image: friedChickenFries },
 
   // Side Orders
   { id: "e1", name: "Quesillo", description: "Oaxacan string cheese, creamy and mild", price: 1.00, category: "Side Orders", image: quesillo },
