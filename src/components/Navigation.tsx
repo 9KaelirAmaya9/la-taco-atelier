@@ -34,7 +34,7 @@ export const Navigation = () => {
               alt="Ricos Tacos" 
               className="h-16 w-16 md:h-20 md:w-20 transition-transform group-hover:scale-105 rounded-lg"
             />
-            <div className="hidden sm:flex flex-col items-start">
+            <div className="hidden md:flex flex-col items-start">
               <span className="font-serif text-xs md:text-sm font-semibold tracking-wider text-foreground/80 uppercase">
                 Piaxtla es México Deli
               </span>
