@@ -42,11 +42,11 @@ export const Navigation = () => {
                 Ricos Tacos
               </span>
               <div className="flex gap-1 mt-1">
-                <div className="w-3 h-1 bg-primary"></div>
-                <div className="w-3 h-1 bg-lime-500"></div>
-                <div className="w-3 h-1 bg-golden-yellow"></div>
-                <div className="w-3 h-1 bg-sage-green"></div>
-                <div className="w-3 h-1 bg-cream"></div>
+                <div className="w-4 h-1.5 bg-primary rounded-full"></div>
+                <div className="w-4 h-1.5 bg-lime-500 rounded-full"></div>
+                <div className="w-4 h-1.5 bg-golden-yellow rounded-full"></div>
+                <div className="w-4 h-1.5 bg-sage-green rounded-full"></div>
+                <div className="w-4 h-1.5 bg-cream rounded-full"></div>
               </div>
             </div>
           </Link>
