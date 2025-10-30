@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { FlavorSelectionDialog } from "@/components/FlavorSelectionDialog";
 import { Plus, Star } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -20,6 +21,31 @@ const Order = () => {
   const { t, language } = useLanguage();
   const { orderType, setOrderType, addToCart } = useCart();
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [flavorDialogOpen, setFlavorDialogOpen] = useState(false);
+  const [pendingItem, setPendingItem] = useState<{ id: string; name: string; price: number; image?: string } | null>(null);
+
+  const handleAddToCart = (item: { id: string; name: string; price: number; image?: string }) => {
+    // Check if this is the fried chicken wings (k7)
+    if (item.id === "k7") {
+      setPendingItem(item);
+      setFlavorDialogOpen(true);
+    } else {
+      addToCart(item);
+    }
+  };
+
+  const handleFlavorSelect = (flavor: string) => {
+    if (pendingItem) {
+      const flavorLabel = flavor === "mango-habanero" ? "Mango Habanero" 
+                        : flavor === "buffalo" ? "Buffalo" 
+                        : "BBQ";
+      addToCart({
+        ...pendingItem,
+        name: `${pendingItem.name} (${flavorLabel})`
+      });
+      setPendingItem(null);
+    }
+  };
 
   // Group items by category
   const groupedItems = selectedCategory === "All"
@@ -156,7 +182,7 @@ const Order = () => {
                                       
                                       <Button 
                                         size="sm" 
-                                        onClick={() => addToCart({ 
+                                        onClick={() => handleAddToCart({ 
                                           id: item.id, 
                                           name: getMenuItemName(item.id, language, item.name), 
                                           price: item.price,
@@ -186,6 +212,13 @@ const Order = () => {
           </div>
         </div>
       </div>
+
+      <FlavorSelectionDialog 
+        open={flavorDialogOpen}
+        onOpenChange={setFlavorDialogOpen}
+        onSelectFlavor={handleFlavorSelect}
+        itemName={pendingItem?.name || ""}
+      />
     </div>
   );
 };

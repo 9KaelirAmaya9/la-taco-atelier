@@ -4,21 +4,46 @@ import { getMenuItemName, getMenuItemDescription } from "@/data/menuTranslations
 import { getCategoryTranslation } from "@/data/translations";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { FlavorSelectionDialog } from "@/components/FlavorSelectionDialog";
 import { Plus } from "lucide-react";
+import { useState } from "react";
 import { useCart } from "@/contexts/CartContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const Menu = () => {
   const { t, language } = useLanguage();
   const { addToCart } = useCart();
+  const [flavorDialogOpen, setFlavorDialogOpen] = useState(false);
+  const [pendingItem, setPendingItem] = useState<{ id: string; name: string; price: number; image?: string } | null>(null);
 
   const handleAddToCart = (item: { id: string; name: string; price: number; image?: string }) => {
-    addToCart({
+    const translatedItem = {
       id: item.id,
       name: getMenuItemName(item.id, language, item.name),
       price: item.price,
       image: item.image,
-    });
+    };
+
+    // Check if this is the fried chicken wings (k7)
+    if (item.id === "k7") {
+      setPendingItem(translatedItem);
+      setFlavorDialogOpen(true);
+    } else {
+      addToCart(translatedItem);
+    }
+  };
+
+  const handleFlavorSelect = (flavor: string) => {
+    if (pendingItem) {
+      const flavorLabel = flavor === "mango-habanero" ? "Mango Habanero" 
+                        : flavor === "buffalo" ? "Buffalo" 
+                        : "BBQ";
+      addToCart({
+        ...pendingItem,
+        name: `${pendingItem.name} (${flavorLabel})`
+      });
+      setPendingItem(null);
+    }
   };
 
   return (
@@ -110,6 +135,13 @@ const Menu = () => {
           </div>
         </div>
       </div>
+
+      <FlavorSelectionDialog 
+        open={flavorDialogOpen}
+        onOpenChange={setFlavorDialogOpen}
+        onSelectFlavor={handleFlavorSelect}
+        itemName={pendingItem?.name || ""}
+      />
     </div>
   );
 };

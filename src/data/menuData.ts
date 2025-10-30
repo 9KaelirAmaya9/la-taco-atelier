@@ -310,7 +310,7 @@ export const menuItems: MenuItem[] = [
   { id: "p27", name: "Parrilladas", description: "Mixed grill platter with assorted meats for sharing", price: 24.99, category: "Main Platillos", image: parrilladas },
 
   // Kids Menu
-  { id: "k1", name: "French Fries", description: "Classic crispy golden fries", price: 12.00, category: "Kids Menu", image: frenchFries },
+  { id: "k1", name: "French Fries", description: "Classic crispy golden fries", price: 4.00, category: "Kids Menu", image: frenchFries },
   { id: "k2", name: "Chicken Nuggets", description: "Golden crispy chicken nuggets", price: 12.00, category: "Kids Menu", image: chickenNuggets },
   { id: "k3", name: "Chicken Tenders & Fries", description: "Crispy chicken tenders served with golden fries", price: 12.00, category: "Kids Menu", image: chickenTendersFries },
   { id: "k4", name: "Nuggets & Fries Meal", description: "Chicken nuggets with a side of crispy fries", price: 12.00, category: "Kids Menu", image: nuggetsFries },
