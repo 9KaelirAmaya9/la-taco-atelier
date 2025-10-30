@@ -42,7 +42,28 @@ export const Navigation = () => {
                 Ricos Tacos
               </span>
               <div className="mt-1 w-full">
-                <div className="h-1.5 w-full bg-gradient-to-r from-[#E31E24] via-[#F68D2E] via-[#FDB913] via-[#57B947] via-[#0071BC] via-[#92278F] to-[#E31E24] rounded-sm"></div>
+                <div className="h-2 w-full flex">
+                  <div className="flex-1" style={{ backgroundColor: '#00BCD4' }}></div>
+                  <div className="flex-1" style={{ backgroundColor: '#E31E24' }}></div>
+                  <div className="flex-1" style={{ backgroundColor: '#FF1493' }}></div>
+                  <div className="flex-1" style={{ backgroundColor: '#92278F' }}></div>
+                  <div className="flex-1" style={{ backgroundColor: '#0071BC' }}></div>
+                  <div className="flex-1" style={{ backgroundColor: '#57B947' }}></div>
+                  <div className="flex-1" style={{ backgroundColor: '#FDB913' }}></div>
+                  <div className="flex-1" style={{ backgroundColor: '#F68D2E' }}></div>
+                  <div className="flex-1" style={{ backgroundColor: '#E31E24' }}></div>
+                  <div className="flex-1" style={{ backgroundColor: '#00BCD4' }}></div>
+                  <div className="flex-1" style={{ backgroundColor: '#FF1493' }}></div>
+                  <div className="flex-1" style={{ backgroundColor: '#92278F' }}></div>
+                  <div className="flex-1" style={{ backgroundColor: '#0071BC' }}></div>
+                  <div className="flex-1" style={{ backgroundColor: '#57B947' }}></div>
+                  <div className="flex-1" style={{ backgroundColor: '#FDB913' }}></div>
+                  <div className="flex-1" style={{ backgroundColor: '#F68D2E' }}></div>
+                  <div className="flex-1" style={{ backgroundColor: '#E31E24' }}></div>
+                  <div className="flex-1" style={{ backgroundColor: '#FF1493' }}></div>
+                  <div className="flex-1" style={{ backgroundColor: '#92278F' }}></div>
+                  <div className="flex-1" style={{ backgroundColor: '#00BCD4' }}></div>
+                </div>
               </div>
             </div>
           </Link>
