@@ -98,7 +98,7 @@ const Order = () => {
                         </div>
 
                         {/* Items Grid */}
-                        <div className="grid sm:grid-cols-2 gap-4">
+                        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                           {items.map((item, index) => {
                             const ItemCard = () => {
                               const { ref: cardRef, isVisible: cardVisible } = useScrollAnimation({ 
@@ -116,8 +116,8 @@ const Order = () => {
                                   style={{ transitionDelay: `${index * 50}ms` }}
                                 >
                                   <Card className="overflow-hidden hover:shadow-elegant transition-all duration-300 group flex flex-col border-2 border-transparent hover:border-primary/10 bg-card h-full">
-                                    {item.image && (
-                                      <div className="relative h-40 overflow-hidden flex-shrink-0">
+                                     {item.image && (
+                                       <div className="relative h-32 overflow-hidden flex-shrink-0">
                                         <img 
                                           src={item.image} 
                                           alt={item.name}
