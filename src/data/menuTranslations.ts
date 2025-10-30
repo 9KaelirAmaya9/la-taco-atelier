@@ -1,11 +1,41 @@
-// Spanish translations for menu items
-export const menuItemTranslations: Record<string, { nameEs: string; descriptionEs: string }> = {
+// Translations for menu items
+export const menuItemTranslations: Record<string, { 
+  nameEn?: string; 
+  descriptionEn?: string; 
+  nameEs: string; 
+  descriptionEs: string 
+}> = {
   // Desayunos Mexicanos (Mexican Breakfasts)
-  "to7": { nameEs: "Jamón y Huevo", descriptionEs: "Jamón y huevos revueltos esponjosos, perfección del desayuno" },
-  "to8": { nameEs: "Salchicha y Huevo", descriptionEs: "Salchicha sabrosa con huevos en bolillo tostado" },
-  "to9": { nameEs: "Chorizo con Huevo", descriptionEs: "Chorizo mexicano picante con huevos y queso derretido" },
-  "p12": { nameEs: "Chilaquiles Rojos o Verdes con Cecina", descriptionEs: "Totopos crujientes en salsa con cecina y huevos" },
-  "b5": { nameEs: "Burrito Chorizo", descriptionEs: "Chorizo mexicano picante con huevos, frijoles y queso" },
+  "to7": { 
+    nameEn: "Ham and Egg", 
+    descriptionEn: "Ham and fluffy scrambled eggs, breakfast perfection",
+    nameEs: "Jamón y Huevo", 
+    descriptionEs: "Jamón y huevos revueltos esponjosos, perfección del desayuno" 
+  },
+  "to8": { 
+    nameEn: "Sausage and Egg", 
+    descriptionEn: "Savory sausage with eggs on toasted roll",
+    nameEs: "Salchicha y Huevo", 
+    descriptionEs: "Salchicha sabrosa con huevos en bolillo tostado" 
+  },
+  "to9": { 
+    nameEn: "Chorizo with Egg", 
+    descriptionEn: "Spicy Mexican sausage with eggs and melted cheese",
+    nameEs: "Chorizo con Huevo", 
+    descriptionEs: "Chorizo mexicano picante con huevos y queso derretido" 
+  },
+  "p12": { 
+    nameEn: "Red or Green Chilaquiles with Cecina", 
+    descriptionEn: "Crispy tortilla chips in salsa with salted beef and eggs",
+    nameEs: "Chilaquiles Rojos o Verdes con Cecina", 
+    descriptionEs: "Totopos crujientes en salsa con cecina y huevos" 
+  },
+  "b5": { 
+    nameEn: "Chorizo Burrito", 
+    descriptionEn: "Spicy Mexican sausage with eggs, beans, and cheese",
+    nameEs: "Burrito Chorizo", 
+    descriptionEs: "Chorizo mexicano picante con huevos, frijoles y queso" 
+  },
 
   // Carnes/Meats (for Tacos)
   "m1": { nameEs: "Al Pastor", descriptionEs: "Jugoso cerdo marinado con piña, asado a la perfección en el trompo" },
@@ -183,16 +213,25 @@ export const menuItemTranslations: Record<string, { nameEs: string; descriptionE
   "de4": { nameEs: "Cremitas", descriptionEs: "Postres de crema dulce en sabores variados" },
 };
 
+import { menuItemNamesEnglish } from "./menuNamesEnglish";
+
 export function getMenuItemName(id: string, language: "en" | "es", defaultName: string): string {
-  if (language === "es" && menuItemTranslations[id]) {
-    return menuItemTranslations[id].nameEs;
+  const translation = menuItemTranslations[id];
+  
+  if (language === "es") {
+    return translation?.nameEs || defaultName;
   }
-  return defaultName;
+  
+  // For English, use the dedicated English names mapping
+  return menuItemNamesEnglish[id] || translation?.nameEn || defaultName;
 }
 
 export function getMenuItemDescription(id: string, language: "en" | "es", defaultDescription: string | undefined): string | undefined {
-  if (language === "es" && menuItemTranslations[id]) {
-    return menuItemTranslations[id].descriptionEs;
+  const translation = menuItemTranslations[id];
+  if (!translation) return defaultDescription;
+  
+  if (language === "es") {
+    return translation.descriptionEs;
   }
-  return defaultDescription;
+  return translation.descriptionEn || defaultDescription;
 }
