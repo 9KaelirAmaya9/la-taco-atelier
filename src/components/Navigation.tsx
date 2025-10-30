@@ -41,22 +41,25 @@ export const Navigation = () => {
               <span className="font-serif text-2xl md:text-3xl font-bold tracking-tight text-primary group-hover:text-primary/80 transition-colors">
                 Ricos Tacos
               </span>
-              <div className="flex items-center gap-0.5 mt-1">
-                <div className="w-1.5 h-3 bg-sage-green"></div>
-                <div className="w-1 h-2 bg-golden-yellow"></div>
-                <div className="w-2 h-4 bg-primary"></div>
-                <div className="w-1 h-2 bg-cream"></div>
-                <div className="w-1.5 h-3 bg-sage-green"></div>
-                <div className="w-2 h-4 bg-golden-yellow"></div>
-                <div className="w-1 h-2 bg-primary"></div>
-                <div className="w-1.5 h-3 bg-cream"></div>
-                <div className="w-1 h-2 bg-sage-green"></div>
-                <div className="w-2 h-4 bg-primary"></div>
-                <div className="w-1.5 h-3 bg-golden-yellow"></div>
-                <div className="w-1 h-2 bg-sage-green"></div>
-                <div className="w-2 h-4 bg-cream"></div>
-                <div className="w-1 h-2 bg-primary"></div>
-                <div className="w-1.5 h-3 bg-golden-yellow"></div>
+              <div className="flex flex-col gap-0.5 mt-1">
+                <div className="flex gap-0.5">
+                  <div className="w-2 h-1.5 bg-primary"></div>
+                  <div className="w-2 h-1.5 bg-lime-500"></div>
+                  <div className="w-2 h-1.5 bg-golden-yellow"></div>
+                  <div className="w-2 h-1.5 bg-sage-green"></div>
+                  <div className="w-2 h-1.5 bg-cream"></div>
+                  <div className="w-2 h-1.5 bg-lime-500"></div>
+                  <div className="w-2 h-1.5 bg-primary"></div>
+                </div>
+                <div className="flex gap-0.5">
+                  <div className="w-2 h-1.5 bg-golden-yellow"></div>
+                  <div className="w-2 h-1.5 bg-sage-green"></div>
+                  <div className="w-2 h-1.5 bg-lime-500"></div>
+                  <div className="w-2 h-1.5 bg-primary"></div>
+                  <div className="w-2 h-1.5 bg-lime-500"></div>
+                  <div className="w-2 h-1.5 bg-cream"></div>
+                  <div className="w-2 h-1.5 bg-golden-yellow"></div>
+                </div>
               </div>
             </div>
           </Link>
