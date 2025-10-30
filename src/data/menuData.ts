@@ -307,6 +307,11 @@ export const menuItems: MenuItem[] = [
   // Kids Menu
   { id: "k1", name: "French Fries", description: "Classic crispy golden fries", price: 6.00, category: "Kids Menu", image: frenchFries },
   { id: "k2", name: "Chicken Nuggets", description: "Golden crispy chicken nuggets", price: 6.00, category: "Kids Menu", image: chickenNuggets },
+  { id: "k3", name: "Chicken Tenders & Fries", description: "Crispy chicken tenders served with golden fries", price: 8.00, category: "Kids Menu", image: chickenNuggets },
+  { id: "k4", name: "Nuggets & Fries Meal", description: "Chicken nuggets with a side of crispy fries", price: 8.00, category: "Kids Menu", image: chickenNuggets },
+  { id: "k5", name: "Chicken Quesadilla & Fries", description: "Cheesy chicken quesadilla with golden fries", price: 9.00, category: "Kids Menu", image: quesadilla },
+  { id: "k6", name: "Salchipapas", description: "Sliced hot dogs with crispy fries, a kids favorite", price: 7.00, category: "Kids Menu", image: frenchFries },
+  { id: "k7", name: "Fried Chicken & Fries", description: "Crispy fried chicken wings with fries - Choose your flavor: Mango Habanero, Buffalo, or BBQ", price: 10.00, category: "Kids Menu", image: chickenNuggets },
 
   // Side Orders
   { id: "e1", name: "Quesillo", description: "Oaxacan string cheese, creamy and mild", price: 1.00, category: "Side Orders", image: quesillo },
