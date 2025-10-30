@@ -54,9 +54,9 @@ All colors MUST be HSL.
     --rico-orange-light: 28 88% 72%;
     --rico-orange-dark: 28 95% 48%;
     
-    /* Typography */
-    --font-serif: 'Cormorant Garamond', serif;
-    --font-sans: 'Inter', sans-serif;
+  /* Typography */
+  --font-serif: 'Bebas Neue', sans-serif;
+  --font-sans: 'Inter', sans-serif;
 
     /* Professional shadows with depth */
     --shadow-elegant: 0 20px 50px -12px hsl(0 0% 0% / 0.12);
