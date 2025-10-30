@@ -51,8 +51,8 @@ const Index = () => {
       </section>
 
       {/* About Section */}
-      <section className="py-16 sm:py-24 md:py-32 bg-gradient-to-b from-background to-muted/30">
-        <div className="container mx-auto px-4">
+      <section className="py-16 sm:py-24 md:py-32 bg-gradient-to-b from-background to-muted/30 texture-warm">
+        <div className="container mx-auto px-4 relative z-10">
           <div className="grid md:grid-cols-2 gap-8 sm:gap-12 items-center">
             <div className="space-y-4 sm:space-y-6">
               <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-foreground">
@@ -84,7 +84,7 @@ const Index = () => {
       </section>
 
       {/* Features Section */}
-      <section className="py-16 sm:py-24 md:py-32 bg-card">
+      <section className="py-16 sm:py-24 md:py-32 bg-card pattern-tile">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12 sm:mb-16">
             <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6">
