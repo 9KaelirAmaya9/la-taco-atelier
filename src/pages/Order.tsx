@@ -62,14 +62,14 @@ const Order = () => {
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
       <Navigation />
       
-      <div className="pt-32 pb-20">
+      <div className="pt-24 sm:pt-28 md:pt-32 pb-16 sm:pb-20">
         <div className="container mx-auto px-4">
           {/* Header */}
-          <div className="text-center mb-12">
-            <h1 className="font-serif text-5xl md:text-6xl font-bold mb-6">
+          <div className="text-center mb-8 sm:mb-12">
+            <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl font-bold mb-4 sm:mb-6">
               {t("order.title")} <span className="text-primary">{t("order.titleHighlight")}</span>
             </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
+            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto mb-6 sm:mb-8 px-4">
               {t("order.subtitle")}
             </p>
 
@@ -85,13 +85,13 @@ const Order = () => {
           {/* Menu Items - Full Width */}
           <div className="space-y-6">
               {/* Category Filter */}
-              <div className="flex items-center gap-4">
-                <label className="text-sm font-medium">{t("order.filterBy")}</label>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+                <label className="text-sm font-medium whitespace-nowrap">{t("order.filterBy")}</label>
                 <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                  <SelectTrigger className="w-[200px]">
+                  <SelectTrigger className="w-full sm:w-[200px]">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-background z-50">
                     <SelectItem value="All">{t("order.allItems")}</SelectItem>
                     {menuCategories.map(category => (
                       <SelectItem key={category} value={category}>

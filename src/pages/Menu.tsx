@@ -50,14 +50,14 @@ const Menu = () => {
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
       <Navigation />
       
-      <div className="pt-32 pb-20">
+      <div className="pt-24 sm:pt-28 md:pt-32 pb-16 sm:pb-20">
         <div className="container mx-auto px-4">
           {/* Header */}
-          <div className="text-center mb-16">
-            <h1 className="font-serif text-5xl md:text-6xl font-bold mb-6">
+          <div className="text-center mb-12 sm:mb-16">
+            <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl font-bold mb-4 sm:mb-6">
               {t("menu.title")} <span className="text-primary">{t("menu.titleHighlight")}</span>
             </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto px-4">
               {t("menu.subtitle")}
             </p>
           </div>

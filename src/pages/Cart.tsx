@@ -113,10 +113,10 @@ const Cart = () => {
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
       <Navigation />
       
-      <div className="pt-32 pb-20">
+      <div className="pt-24 sm:pt-28 md:pt-32 pb-16 sm:pb-20">
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
-            <h1 className="font-serif text-5xl md:text-6xl font-bold mb-12 text-center">
+            <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl font-bold mb-8 sm:mb-12 text-center">
               {t("cart.title")} <span className="text-primary">{t("cart.titleHighlight")}</span>
             </h1>
 
@@ -221,8 +221,8 @@ const Cart = () => {
 
                 {/* Checkout Form */}
                 <div className="lg:col-span-1">
-                  <Card className="p-6 sticky top-32">
-                    <h2 className="font-serif text-2xl font-semibold mb-6">Checkout</h2>
+                  <Card className="p-4 sm:p-6 lg:sticky lg:top-32">
+                    <h2 className="font-serif text-xl sm:text-2xl font-semibold mb-4 sm:mb-6">Checkout</h2>
 
                     <Tabs value={orderType} onValueChange={(v) => setOrderType(v as "pickup" | "delivery")} className="mb-6">
                       <TabsList className="grid w-full grid-cols-2">
