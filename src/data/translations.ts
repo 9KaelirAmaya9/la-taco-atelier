@@ -23,8 +23,8 @@ export const translations: Record<"en" | "es", Translations> = {
     
     "home.about.title1": "A Taste of",
     "home.about.title2": "Tradition",
-    "home.about.p1": "At Ricos Tacos, we bring the authentic flavors of Mexico to Brooklyn. Each dish is prepared with traditional recipes passed down through generations, using only the finest ingredients.",
-    "home.about.p2": "From our signature tacos to our rich moles and fresh aguas frescas, every bite tells a story of Mexican culinary heritage.",
+    "home.about.p1": "At Ricos Tacos, we honor the rich culinary heritage of Puebla, Mexico. Each dish is crafted from authentic recipes passed down through generations, featuring natural, locally sourced ingredients that bring out the delectable, savory flavors of traditional poblano cuisine.",
+    "home.about.p2": "From our handmade mole poblano with its intricate blend of chiles and spices, to our succulent tacos árabes and chalupas, every bite celebrates the time-honored techniques and fresh ingredients that make Puebla's gastronomy world-renowned.",
     "home.about.exploreMenu": "Explore Our Menu",
     
     "home.why.title": "Why Choose",
@@ -156,8 +156,8 @@ export const translations: Record<"en" | "es", Translations> = {
     
     "home.about.title1": "Un Sabor de",
     "home.about.title2": "Tradición",
-    "home.about.p1": "En Ricos Tacos, traemos los sabores auténticos de México a Brooklyn. Cada platillo se prepara con recetas tradicionales transmitidas por generaciones, usando solo los mejores ingredientes.",
-    "home.about.p2": "Desde nuestros tacos característicos hasta nuestros ricos moles y aguas frescas, cada bocado cuenta una historia del patrimonio culinario mexicano.",
+    "home.about.p1": "En Ricos Tacos, honramos la rica herencia culinaria de Puebla, México. Cada platillo se elabora con recetas auténticas transmitidas por generaciones, utilizando ingredientes naturales de origen local que resaltan los sabores deliciosos y sabrosos de la cocina tradicional poblana.",
+    "home.about.p2": "Desde nuestro mole poblano hecho a mano con su intrincada mezcla de chiles y especias, hasta nuestros suculentos tacos árabes y chalupas, cada bocado celebra las técnicas tradicionales e ingredientes frescos que hacen de la gastronomía de Puebla reconocida mundialmente.",
     "home.about.exploreMenu": "Explorar Nuestro Menú",
     
     "home.why.title": "Por Qué Elegir",
