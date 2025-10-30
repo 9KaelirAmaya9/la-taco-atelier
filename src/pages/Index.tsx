@@ -5,7 +5,7 @@ import { ArrowRight } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import heroImage from "@/assets/hero-tacos.jpg";
 import interiorImage from "@/assets/puebla-traditional.jpg";
-import logo from "@/assets/ricos-tacos-logo.png";
+import logo from "@/assets/logo-illustration.png";
 
 const Index = () => {
   const { t } = useLanguage();
