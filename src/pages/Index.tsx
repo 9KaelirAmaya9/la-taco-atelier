@@ -15,12 +15,13 @@ const Index = () => {
       <Navigation />
       
       {/* Hero Section */}
-      <section className="relative h-screen flex items-center justify-center overflow-hidden">
+      <section className="relative h-screen flex items-center justify-center overflow-hidden" aria-label="Hero">
         <div className="absolute inset-0">
           <img 
             src={heroImage} 
-            alt="Elegant tacos presentation" 
+            alt="Authentic Mexican street tacos with fresh cilantro, onions, and lime on traditional corn tortillas at Ricos Tacos Brooklyn" 
             className="w-full h-full object-cover"
+            fetchPriority="high"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/60" />
         </div>
@@ -51,11 +52,11 @@ const Index = () => {
       </section>
 
       {/* About Section */}
-      <section className="py-16 sm:py-24 md:py-32 bg-gradient-to-b from-background to-muted/30 texture-warm">
+      <section className="py-16 sm:py-24 md:py-32 bg-gradient-to-b from-background to-muted/30 texture-warm" aria-labelledby="about-heading">
         <div className="container mx-auto px-4 relative z-10">
           <div className="grid md:grid-cols-2 gap-8 sm:gap-12 items-center">
-            <div className="space-y-4 sm:space-y-6">
-              <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-foreground">
+            <article className="space-y-4 sm:space-y-6">
+              <h2 id="about-heading" className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-foreground">
                 {t("home.about.title1")}
                 <br />
                 <span className="text-primary">{t("home.about.title2")}</span>
@@ -66,17 +67,20 @@ const Index = () => {
               <p className="text-muted-foreground leading-relaxed text-base sm:text-lg">
                 {t("home.about.p2")}
               </p>
-              <Link to="/menu">
+              <Link to="/menu" aria-label="Explore our authentic Mexican menu">
                 <Button size="lg" className="mt-4 sm:mt-6 w-full sm:w-auto">
                   {t("home.about.exploreMenu")}
                 </Button>
               </Link>
-            </div>
+            </article>
             <div className="relative h-[300px] sm:h-[400px] md:h-[500px] rounded-2xl overflow-hidden shadow-elegant group">
               <img 
                 src={interiorImage} 
-                alt="Traditional Puebla restaurant interior" 
+                alt="Traditional Puebla-style Mexican restaurant interior with authentic decor at Ricos Tacos Brooklyn" 
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                loading="lazy"
+                width="800"
+                height="500"
               />
             </div>
           </div>
@@ -84,47 +88,47 @@ const Index = () => {
       </section>
 
       {/* Features Section */}
-      <section className="py-16 sm:py-24 md:py-32 bg-card pattern-tile">
+      <section className="py-16 sm:py-24 md:py-32 bg-card pattern-tile" aria-labelledby="features-heading">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12 sm:mb-16">
-            <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6">
+          <header className="text-center mb-12 sm:mb-16">
+            <h2 id="features-heading" className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6">
               {t("home.why.title")} <span className="text-primary">{t("home.why.titleHighlight")}</span>
             </h2>
             <p className="text-muted-foreground text-base sm:text-lg max-w-2xl mx-auto px-4">
               {t("home.why.subtitle")}
             </p>
-          </div>
+          </header>
 
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
-            <div className="bg-background p-6 sm:p-8 rounded-xl shadow-card hover:shadow-elegant transition-all duration-300 border border-border hover:border-primary/20 group">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 sm:mb-6 group-hover:bg-primary/15 transition-colors">
+            <article className="bg-background p-6 sm:p-8 rounded-xl shadow-card hover:shadow-elegant transition-all duration-300 border border-border hover:border-primary/20 group">
+              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 sm:mb-6 group-hover:bg-primary/15 transition-colors" aria-hidden="true">
                 <span className="text-3xl">🌮</span>
               </div>
               <h3 className="font-serif text-xl sm:text-2xl font-semibold mb-3 sm:mb-4 group-hover:text-primary transition-colors">{t("home.feature1.title")}</h3>
               <p className="text-muted-foreground leading-relaxed text-sm sm:text-base">
                 {t("home.feature1.desc")}
               </p>
-            </div>
+            </article>
 
-            <div className="bg-background p-6 sm:p-8 rounded-xl shadow-card hover:shadow-elegant transition-all duration-300 border border-border hover:border-primary/20 group">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 sm:mb-6 group-hover:bg-primary/15 transition-colors">
+            <article className="bg-background p-6 sm:p-8 rounded-xl shadow-card hover:shadow-elegant transition-all duration-300 border border-border hover:border-primary/20 group">
+              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 sm:mb-6 group-hover:bg-primary/15 transition-colors" aria-hidden="true">
                 <span className="text-3xl">🚗</span>
               </div>
               <h3 className="font-serif text-xl sm:text-2xl font-semibold mb-3 sm:mb-4 group-hover:text-primary transition-colors">{t("home.feature2.title")}</h3>
               <p className="text-muted-foreground leading-relaxed text-sm sm:text-base">
                 {t("home.feature2.desc")}
               </p>
-            </div>
+            </article>
 
-            <div className="bg-background p-6 sm:p-8 rounded-xl shadow-card hover:shadow-elegant transition-all duration-300 border border-border hover:border-primary/20 group sm:col-span-2 md:col-span-1">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 sm:mb-6 group-hover:bg-primary/15 transition-colors">
+            <article className="bg-background p-6 sm:p-8 rounded-xl shadow-card hover:shadow-elegant transition-all duration-300 border border-border hover:border-primary/20 group sm:col-span-2 md:col-span-1">
+              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 sm:mb-6 group-hover:bg-primary/15 transition-colors" aria-hidden="true">
                 <span className="text-3xl">🎉</span>
               </div>
               <h3 className="font-serif text-xl sm:text-2xl font-semibold mb-3 sm:mb-4 group-hover:text-primary transition-colors">{t("home.feature3.title")}</h3>
               <p className="text-muted-foreground leading-relaxed text-sm sm:text-base">
                 {t("home.feature3.desc")}
               </p>
-            </div>
+            </article>
           </div>
         </div>
       </section>
@@ -149,12 +153,12 @@ const Index = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-muted/30 py-8 sm:py-12 border-t border-border">
+      <footer className="bg-muted/30 py-8 sm:py-12 border-t border-border" role="contentinfo">
         <div className="container mx-auto px-4">
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
             <div>
               <div className="flex items-center gap-3 mb-4">
-                <img src={logo} alt="Ricos Tacos" className="h-12 w-12 sm:h-16 sm:w-16" />
+                <img src={logo} alt="Ricos Tacos Brooklyn restaurant logo" className="h-12 w-12 sm:h-16 sm:w-16" loading="lazy" width="64" height="64" />
                 <div>
                   <h3 className="font-serif text-xl sm:text-2xl font-bold text-[#E31E24] mb-1">Ricos Tacos</h3>
                   {/* Colorful stripe pattern */}
