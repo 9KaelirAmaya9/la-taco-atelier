@@ -32,7 +32,7 @@ const Index = () => {
           <h1 className="font-serif text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold mb-4 sm:mb-6 text-white text-balance leading-tight drop-shadow-2xl">
             {t("home.hero.title1")}
             <br />
-            <span className="text-golden-yellow drop-shadow-lg">{t("home.hero.title2")}</span>
+            <span className="bg-gradient-to-r from-serape-red via-serape-pink to-serape-orange bg-clip-text text-transparent drop-shadow-lg">{t("home.hero.title2")}</span>
           </h1>
           <p className="text-base sm:text-lg md:text-xl text-white/95 max-w-2xl mx-auto mb-8 sm:mb-12 font-light drop-shadow-lg px-4">
             {t("home.hero.subtitle")}
@@ -54,14 +54,17 @@ const Index = () => {
       </section>
 
       {/* About Section */}
-      <section className="py-16 sm:py-24 md:py-32 bg-gradient-to-b from-background to-muted/30 texture-warm" aria-labelledby="about-heading">
+      <section className="py-16 sm:py-24 md:py-32 bg-gradient-to-b from-background to-muted/30 texture-warm relative" aria-labelledby="about-heading">
+        {/* Decorative corner accents */}
+        <div className="absolute top-0 left-0 w-24 h-24 bg-gradient-to-br from-serape-red via-serape-pink to-transparent opacity-20 rounded-br-full" aria-hidden="true"></div>
+        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-serape-blue via-serape-green to-transparent opacity-20 rounded-bl-full" aria-hidden="true"></div>
         <div className="container mx-auto px-4 relative z-10">
           <div className="grid md:grid-cols-2 gap-8 sm:gap-12 items-center">
             <article className="space-y-4 sm:space-y-6">
               <h2 id="about-heading" className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-foreground">
                 {t("home.about.title1")}
                 <br />
-                <span className="text-primary">{t("home.about.title2")}</span>
+                <span className="bg-gradient-to-r from-serape-purple via-serape-blue to-serape-green bg-clip-text text-transparent">{t("home.about.title2")}</span>
               </h2>
               <p className="text-muted-foreground leading-relaxed text-base sm:text-lg">
                 {t("home.about.p1")}
@@ -90,11 +93,14 @@ const Index = () => {
       </section>
 
       {/* Features Section */}
-      <section className="py-16 sm:py-24 md:py-32 bg-card pattern-tile" aria-labelledby="features-heading">
+      <section className="py-16 sm:py-24 md:py-32 bg-card pattern-tile relative" aria-labelledby="features-heading">
+        {/* Decorative corner accents */}
+        <div className="absolute bottom-0 left-0 w-28 h-28 bg-gradient-to-tr from-serape-yellow via-serape-orange to-transparent opacity-20 rounded-tr-full" aria-hidden="true"></div>
+        <div className="absolute bottom-0 right-0 w-36 h-36 bg-gradient-to-tl from-serape-cyan via-serape-pink to-transparent opacity-20 rounded-tl-full" aria-hidden="true"></div>
         <div className="container mx-auto px-4">
           <header className="text-center mb-12 sm:mb-16">
             <h2 id="features-heading" className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6">
-              {t("home.why.title")} <span className="text-primary">{t("home.why.titleHighlight")}</span>
+              {t("home.why.title")} <span className="bg-gradient-to-r from-serape-red via-serape-yellow to-serape-green bg-clip-text text-transparent">{t("home.why.titleHighlight")}</span>
             </h2>
             <p className="text-muted-foreground text-base sm:text-lg max-w-2xl mx-auto px-4">
               {t("home.why.subtitle")}
@@ -102,34 +108,43 @@ const Index = () => {
           </header>
 
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
-            <article className="bg-background p-6 sm:p-8 rounded-xl shadow-card hover:shadow-elegant transition-all duration-300 border border-border hover:border-primary/20 group">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 sm:mb-6 group-hover:bg-primary/15 transition-colors" aria-hidden="true">
-                <span className="text-3xl">🌮</span>
+            <article className="bg-background p-6 sm:p-8 rounded-xl shadow-card hover:shadow-elegant transition-all duration-300 border border-border hover:border-transparent hover:bg-gradient-to-br hover:from-serape-red/10 hover:via-serape-pink/10 hover:to-serape-purple/10 relative group overflow-hidden">
+              <div className="absolute inset-0 border-2 border-transparent group-hover:border-transparent group-hover:bg-gradient-to-br group-hover:from-serape-red group-hover:via-serape-pink group-hover:to-serape-purple rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)', WebkitMaskComposite: 'xor', maskComposite: 'exclude', padding: '2px' }} aria-hidden="true"></div>
+              <div className="relative z-10">
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 sm:mb-6 group-hover:bg-gradient-to-br group-hover:from-serape-red/20 group-hover:via-serape-pink/20 group-hover:to-serape-purple/20 transition-colors" aria-hidden="true">
+                  <span className="text-3xl">🌮</span>
+                </div>
+                <h3 className="font-serif text-xl sm:text-2xl font-semibold mb-3 sm:mb-4 group-hover:text-primary transition-colors">{t("home.feature1.title")}</h3>
+                <p className="text-muted-foreground leading-relaxed text-sm sm:text-base">
+                  {t("home.feature1.desc")}
+                </p>
               </div>
-              <h3 className="font-serif text-xl sm:text-2xl font-semibold mb-3 sm:mb-4 group-hover:text-primary transition-colors">{t("home.feature1.title")}</h3>
-              <p className="text-muted-foreground leading-relaxed text-sm sm:text-base">
-                {t("home.feature1.desc")}
-              </p>
             </article>
 
-            <article className="bg-background p-6 sm:p-8 rounded-xl shadow-card hover:shadow-elegant transition-all duration-300 border border-border hover:border-primary/20 group">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 sm:mb-6 group-hover:bg-primary/15 transition-colors" aria-hidden="true">
-                <span className="text-3xl">🚗</span>
+            <article className="bg-background p-6 sm:p-8 rounded-xl shadow-card hover:shadow-elegant transition-all duration-300 border border-border hover:border-transparent hover:bg-gradient-to-br hover:from-serape-blue/10 hover:via-serape-green/10 hover:to-serape-yellow/10 relative group overflow-hidden">
+              <div className="absolute inset-0 border-2 border-transparent group-hover:border-transparent group-hover:bg-gradient-to-br group-hover:from-serape-blue group-hover:via-serape-green group-hover:to-serape-yellow rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)', WebkitMaskComposite: 'xor', maskComposite: 'exclude', padding: '2px' }} aria-hidden="true"></div>
+              <div className="relative z-10">
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 sm:mb-6 group-hover:bg-gradient-to-br group-hover:from-serape-blue/20 group-hover:via-serape-green/20 group-hover:to-serape-yellow/20 transition-colors" aria-hidden="true">
+                  <span className="text-3xl">🚗</span>
+                </div>
+                <h3 className="font-serif text-xl sm:text-2xl font-semibold mb-3 sm:mb-4 group-hover:text-primary transition-colors">{t("home.feature2.title")}</h3>
+                <p className="text-muted-foreground leading-relaxed text-sm sm:text-base">
+                  {t("home.feature2.desc")}
+                </p>
               </div>
-              <h3 className="font-serif text-xl sm:text-2xl font-semibold mb-3 sm:mb-4 group-hover:text-primary transition-colors">{t("home.feature2.title")}</h3>
-              <p className="text-muted-foreground leading-relaxed text-sm sm:text-base">
-                {t("home.feature2.desc")}
-              </p>
             </article>
 
-            <article className="bg-background p-6 sm:p-8 rounded-xl shadow-card hover:shadow-elegant transition-all duration-300 border border-border hover:border-primary/20 group sm:col-span-2 md:col-span-1">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 sm:mb-6 group-hover:bg-primary/15 transition-colors" aria-hidden="true">
-                <span className="text-3xl">🎉</span>
+            <article className="bg-background p-6 sm:p-8 rounded-xl shadow-card hover:shadow-elegant transition-all duration-300 border border-border hover:border-transparent hover:bg-gradient-to-br hover:from-serape-yellow/10 hover:via-serape-orange/10 hover:to-serape-cyan/10 relative group overflow-hidden sm:col-span-2 md:col-span-1">
+              <div className="absolute inset-0 border-2 border-transparent group-hover:border-transparent group-hover:bg-gradient-to-br group-hover:from-serape-yellow group-hover:via-serape-orange group-hover:to-serape-cyan rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)', WebkitMaskComposite: 'xor', maskComposite: 'exclude', padding: '2px' }} aria-hidden="true"></div>
+              <div className="relative z-10">
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 sm:mb-6 group-hover:bg-gradient-to-br group-hover:from-serape-yellow/20 group-hover:via-serape-orange/20 group-hover:to-serape-cyan/20 transition-colors" aria-hidden="true">
+                  <span className="text-3xl">🎉</span>
+                </div>
+                <h3 className="font-serif text-xl sm:text-2xl font-semibold mb-3 sm:mb-4 group-hover:text-primary transition-colors">{t("home.feature3.title")}</h3>
+                <p className="text-muted-foreground leading-relaxed text-sm sm:text-base">
+                  {t("home.feature3.desc")}
+                </p>
               </div>
-              <h3 className="font-serif text-xl sm:text-2xl font-semibold mb-3 sm:mb-4 group-hover:text-primary transition-colors">{t("home.feature3.title")}</h3>
-              <p className="text-muted-foreground leading-relaxed text-sm sm:text-base">
-                {t("home.feature3.desc")}
-              </p>
             </article>
           </div>
         </div>
