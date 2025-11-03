@@ -2,7 +2,7 @@ import { Navigation } from "@/components/Navigation";
 import { Card } from "@/components/ui/card";
 import { MapPin, Clock, Phone } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/logo-illustration.png";
 
 const Location = () => {
   const { t } = useLanguage();
