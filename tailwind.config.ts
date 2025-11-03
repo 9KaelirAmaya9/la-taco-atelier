@@ -84,6 +84,7 @@ export default {
       fontFamily: {
         serif: ["var(--font-serif)"],
         sans: ["var(--font-sans)"],
+        playfair: ["Playfair Display", "serif"],
       },
       boxShadow: {
         elegant: "var(--shadow-elegant)",

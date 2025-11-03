@@ -38,7 +38,7 @@ export const Navigation = () => {
               <span className="font-serif text-xs md:text-sm font-semibold tracking-wider text-foreground/80 uppercase">
                 Piaxtla es México Deli
               </span>
-              <span className="font-serif text-2xl md:text-3xl font-bold tracking-tight text-primary group-hover:text-primary/80 transition-colors">
+              <span className="font-playfair text-2xl md:text-3xl font-black tracking-tight bg-gradient-to-r from-serape-red via-serape-pink to-serape-orange bg-clip-text text-transparent group-hover:from-serape-orange group-hover:via-serape-yellow group-hover:to-serape-red transition-all duration-500">
                 Ricos Tacos
               </span>
               <div className="mt-1 w-full">
