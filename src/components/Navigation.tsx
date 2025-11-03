@@ -32,13 +32,13 @@ export const Navigation = () => {
             <img 
               src={logo} 
               alt="Ricos Tacos" 
-              className="h-16 w-16 md:h-20 md:w-20 transition-transform group-hover:scale-105 rounded-lg"
+              className="h-14 w-14 md:h-16 md:w-16 lg:h-20 lg:w-20 transition-transform group-hover:scale-105 rounded-lg"
             />
             <div className="hidden md:flex flex-col items-start">
-              <span className="font-serif text-xs md:text-sm font-semibold tracking-wider text-foreground/80 uppercase">
+              <span className="font-serif text-[10px] md:text-xs lg:text-sm font-semibold tracking-wider text-foreground/80 uppercase">
                 Piaxtla es México Deli
               </span>
-              <span className="font-playfair text-2xl md:text-3xl font-black tracking-tight bg-gradient-to-r from-serape-red via-serape-pink to-serape-orange bg-clip-text text-transparent group-hover:from-serape-orange group-hover:via-serape-yellow group-hover:to-serape-red transition-all duration-500">
+              <span className="font-playfair text-xl md:text-2xl lg:text-3xl font-black tracking-tight bg-gradient-to-r from-serape-red via-serape-pink to-serape-orange bg-clip-text text-transparent group-hover:from-serape-orange group-hover:via-serape-yellow group-hover:to-serape-red transition-all duration-500">
                 Ricos Tacos
               </span>
               <div className="mt-1 w-full">
