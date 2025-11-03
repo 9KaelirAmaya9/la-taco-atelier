@@ -80,10 +80,9 @@ export const Navigation = () => {
                   <NavigationMenuLink asChild>
                     <Link
                       to="/"
-                      className={`relative px-4 py-2 text-sm font-medium transition-all duration-300 hover:[&>.nav-underline]:scale-x-100 ${isActive("/") ? "text-primary" : "text-foreground"}`}
+                      className={`relative px-4 py-2 text-sm font-medium transition-all duration-300 ${isActive("/") ? "text-primary" : "text-foreground"} after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-0.5 after:w-full after:bg-gradient-to-r after:from-serape-cyan after:via-serape-pink after:to-serape-yellow after:scale-x-0 hover:after:scale-x-100 after:origin-left after:transition-transform after:duration-300`}
                     >
                       {t("nav.home")}
-                      <span className="nav-underline pointer-events-none absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-serape-cyan via-serape-pink to-serape-yellow scale-x-0 transition-transform duration-300 origin-left" />
                     </Link>
                   </NavigationMenuLink>
                 </NavigationMenuItem>
@@ -92,10 +91,9 @@ export const Navigation = () => {
                   <NavigationMenuLink asChild>
                     <Link
                       to="/menu"
-                      className={`relative px-4 py-2 text-sm font-medium transition-all duration-300 hover:[&>.nav-underline]:scale-x-100 ${isActive("/menu") ? "text-primary" : "text-foreground"}`}
+                      className={`relative px-4 py-2 text-sm font-medium transition-all duration-300 ${isActive("/menu") ? "text-primary" : "text-foreground"} after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-0.5 after:w-full after:bg-gradient-to-r after:from-serape-red after:via-serape-orange after:to-serape-yellow after:scale-x-0 hover:after:scale-x-100 after:origin-left after:transition-transform after:duration-300`}
                     >
                       {t("nav.fullMenu")}
-                      <span className="nav-underline pointer-events-none absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-serape-red via-serape-orange to-serape-yellow scale-x-0 transition-transform duration-300 origin-left" />
                     </Link>
                   </NavigationMenuLink>
                 </NavigationMenuItem>
@@ -104,10 +102,9 @@ export const Navigation = () => {
                   <NavigationMenuLink asChild>
                     <Link
                       to="/order"
-                      className={`relative px-4 py-2 text-sm font-medium transition-all duration-300 hover:[&>.nav-underline]:scale-x-100 ${isActive("/order") ? "text-primary" : "text-foreground"}`}
+                      className={`relative px-4 py-2 text-sm font-medium transition-all duration-300 ${isActive("/order") ? "text-primary" : "text-foreground"} after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-0.5 after:w-full after:bg-gradient-to-r after:from-serape-pink after:via-serape-purple after:to-serape-blue after:scale-x-0 hover:after:scale-x-100 after:origin-left after:transition-transform after:duration-300`}
                     >
                       {t("nav.orderOnline")}
-                      <span className="nav-underline pointer-events-none absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-serape-pink via-serape-purple to-serape-blue scale-x-0 transition-transform duration-300 origin-left" />
                     </Link>
                   </NavigationMenuLink>
                 </NavigationMenuItem>
@@ -116,10 +113,9 @@ export const Navigation = () => {
                   <NavigationMenuLink asChild>
                     <Link
                       to="/location"
-                      className={`relative px-4 py-2 text-sm font-medium transition-all duration-300 hover:[&>.nav-underline]:scale-x-100 ${isActive("/location") ? "text-primary" : "text-foreground"}`}
+                      className={`relative px-4 py-2 text-sm font-medium transition-all duration-300 ${isActive("/location") ? "text-primary" : "text-foreground"} after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-0.5 after:w-full after:bg-gradient-to-r after:from-serape-green after:via-serape-yellow after:to-serape-orange after:scale-x-0 hover:after:scale-x-100 after:origin-left after:transition-transform after:duration-300`}
                     >
                       {t("nav.location")}
-                      <span className="nav-underline pointer-events-none absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-serape-green via-serape-yellow to-serape-orange scale-x-0 transition-transform duration-300 origin-left" />
                     </Link>
                   </NavigationMenuLink>
                 </NavigationMenuItem>
