@@ -86,21 +86,12 @@ export const Navigation = () => {
                 </NavigationMenuItem>
 
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger className="text-sm">{t("nav.comida")}</NavigationMenuTrigger>
-                  <NavigationMenuContent>
-                    <ul className="grid w-[400px] gap-3 p-4">
-                      <li>
-                        <Link to="/menu">
-                          <NavigationMenuLink className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground">
-                            <div className="text-sm font-medium leading-none">{t("nav.fullMenu")}</div>
-                            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                              {t("nav.menuDesc")}
-                            </p>
-                          </NavigationMenuLink>
-                        </Link>
-                      </li>
-                    </ul>
-                  </NavigationMenuContent>
+                  <Link to="/menu">
+                    <NavigationMenuLink className={`px-4 py-2 text-sm font-medium transition-all duration-300 relative group ${isActive("/menu") ? "text-primary" : "text-foreground hover:text-serape-purple"}`}>
+                      {t("nav.fullMenu")}
+                      <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-serape-red via-serape-orange to-serape-yellow scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
+                    </NavigationMenuLink>
+                  </Link>
                 </NavigationMenuItem>
 
                 <NavigationMenuItem>
