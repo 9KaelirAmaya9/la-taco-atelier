@@ -78,7 +78,7 @@ export const Navigation = () => {
               <NavigationMenuList>
                 <NavigationMenuItem>
                   <Link to="/">
-                    <NavigationMenuLink className={`px-4 py-2 text-sm font-medium transition-all duration-300 relative group ${isActive("/") ? "text-primary" : "text-foreground hover:text-serape-red"}`}>
+                    <NavigationMenuLink className={`px-4 py-2 text-sm font-medium transition-all duration-300 relative group ${isActive("/") ? "text-primary" : "text-foreground"}`}>
                       {t("nav.home")}
                       <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-serape-cyan via-serape-pink to-serape-yellow scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
                     </NavigationMenuLink>
@@ -87,7 +87,7 @@ export const Navigation = () => {
 
                 <NavigationMenuItem>
                   <Link to="/menu">
-                    <NavigationMenuLink className={`px-4 py-2 text-sm font-medium transition-all duration-300 relative group ${isActive("/menu") ? "text-primary" : "text-foreground hover:text-serape-purple"}`}>
+                    <NavigationMenuLink className={`px-4 py-2 text-sm font-medium transition-all duration-300 relative group ${isActive("/menu") ? "text-primary" : "text-foreground"}`}>
                       {t("nav.fullMenu")}
                       <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-serape-red via-serape-orange to-serape-yellow scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
                     </NavigationMenuLink>
@@ -96,7 +96,7 @@ export const Navigation = () => {
 
                 <NavigationMenuItem>
                   <Link to="/order">
-                    <NavigationMenuLink className={`px-4 py-2 text-sm font-medium transition-all duration-300 relative group ${isActive("/order") ? "text-primary" : "text-foreground hover:text-serape-pink"}`}>
+                    <NavigationMenuLink className={`px-4 py-2 text-sm font-medium transition-all duration-300 relative group ${isActive("/order") ? "text-primary" : "text-foreground"}`}>
                       {t("nav.orderOnline")}
                       <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-serape-pink via-serape-purple to-serape-blue scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
                     </NavigationMenuLink>
@@ -105,7 +105,7 @@ export const Navigation = () => {
 
                 <NavigationMenuItem>
                   <Link to="/location">
-                    <NavigationMenuLink className={`px-4 py-2 text-sm font-medium transition-all duration-300 relative group ${isActive("/location") ? "text-primary" : "text-foreground hover:text-serape-green"}`}>
+                    <NavigationMenuLink className={`px-4 py-2 text-sm font-medium transition-all duration-300 relative group ${isActive("/location") ? "text-primary" : "text-foreground"}`}>
                       {t("nav.location")}
                       <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-serape-green via-serape-yellow to-serape-orange scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
                     </NavigationMenuLink>
