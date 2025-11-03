@@ -89,6 +89,10 @@ const Menu = () => {
                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                              />
                              <div className="absolute inset-0 bg-gradient-to-t from-serape-red/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                             {/* AI Generated watermark */}
+                             <div className="absolute bottom-2 right-2 text-[8px] text-white/30 font-mono tracking-tight backdrop-blur-[2px] px-1.5 py-0.5 rounded bg-black/10">
+                               AI
+                             </div>
                            </div>
                          )}
                          <div className="p-6 flex flex-col h-full bg-card relative z-10">
