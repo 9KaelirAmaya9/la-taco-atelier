@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
+import { SerapeStripe } from "@/components/SerapeStripe";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -12,6 +13,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen">
+      <SerapeStripe />
       <Navigation />
       
       {/* Hero Section */}
@@ -217,6 +219,7 @@ const Index = () => {
           </div>
         </div>
       </footer>
+      <SerapeStripe />
     </div>
   );
 };

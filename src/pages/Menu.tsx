@@ -1,4 +1,5 @@
 import { Navigation } from "@/components/Navigation";
+import { SerapeStripe } from "@/components/SerapeStripe";
 import { menuItems, menuCategories } from "@/data/menuData";
 import { getMenuItemName, getMenuItemDescription } from "@/data/menuTranslations";
 import { getCategoryTranslation } from "@/data/translations";
@@ -48,6 +49,7 @@ const Menu = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
+      <SerapeStripe />
       <Navigation />
       
       <div className="pt-24 sm:pt-28 md:pt-32 pb-16 sm:pb-20">
@@ -71,29 +73,29 @@ const Menu = () => {
 
               return (
                 <section key={category} id={category.toLowerCase().replace(/\s+/g, '-')}>
-                  <h2 className="font-serif text-3xl md:text-4xl font-bold mb-8 pb-4 border-b-2 border-primary/20">
+                  <h2 className="font-serif text-3xl md:text-4xl font-bold mb-8 pb-4 border-b-4 bg-gradient-to-r from-serape-red via-serape-pink to-serape-purple bg-clip-text text-transparent" style={{ borderImage: 'var(--gradient-serape-full) 1' }}>
                     {getCategoryTranslation(language, category)}
                   </h2>
                   
-                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {categoryItems.map((item) => (
-                      <Card key={item.id} className="overflow-hidden hover:shadow-elegant transition-all duration-300 group border-2 border-transparent hover:border-primary/10 bg-card">
-                        {item.image && (
-                          <div className="relative h-48 overflow-hidden">
-                            <img 
-                              src={item.image} 
-                              alt={item.name}
-                              loading="lazy"
-                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                          </div>
-                        )}
-                        <div className="p-6 flex flex-col h-full bg-card">
-                          <div className="flex-1">
-                            <h3 className="font-serif text-xl font-semibold mb-2 group-hover:text-primary transition-colors">
-                              {getMenuItemName(item.id, language, item.name)}
-                            </h3>
+                   <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                     {categoryItems.map((item) => (
+                       <Card key={item.id} className="overflow-hidden hover:shadow-elegant transition-all duration-300 group border-2 border-transparent hover:border-serape-red/30 bg-card relative before:absolute before:inset-0 before:opacity-0 hover:before:opacity-100 before:bg-gradient-to-br before:from-serape-cyan/5 before:via-serape-pink/5 before:to-serape-yellow/5 before:transition-opacity before:duration-500 before:pointer-events-none">
+                         {item.image && (
+                           <div className="relative h-48 overflow-hidden">
+                             <img 
+                               src={item.image} 
+                               alt={item.name}
+                               loading="lazy"
+                               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                             />
+                             <div className="absolute inset-0 bg-gradient-to-t from-serape-red/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                           </div>
+                         )}
+                         <div className="p-6 flex flex-col h-full bg-card relative z-10">
+                           <div className="flex-1">
+                             <h3 className="font-serif text-xl font-semibold mb-2 group-hover:text-serape-red transition-colors duration-300">
+                               {getMenuItemName(item.id, language, item.name)}
+                             </h3>
                             {item.description && (
                               <p className="text-sm text-muted-foreground mb-4">
                                 {getMenuItemDescription(item.id, language, item.description)}
@@ -135,6 +137,7 @@ const Menu = () => {
           </div>
         </div>
       </div>
+      <SerapeStripe />
 
       <FlavorSelectionDialog 
         open={flavorDialogOpen}

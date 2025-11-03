@@ -93,7 +93,23 @@ All colors MUST be HSL.
     --shadow-card: 0 2px 8px hsl(0 0% 0% / 0.04);
     
     /* Smooth transitions */
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Serape gradient for accents */
+  --gradient-serape-full: linear-gradient(
+    90deg,
+    #00BCD4 0%,
+    #E31E24 10%,
+    #FF1493 20%,
+    #92278F 30%,
+    #0071BC 40%,
+    #57B947 50%,
+    #FDB913 60%,
+    #F68D2E 70%,
+    #E31E24 80%,
+    #00BCD4 90%,
+    #FF1493 100%
+  );
     
     /* Subtle textures and patterns */
     --texture-paper: url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.08'/%3E%3C/svg%3E");
@@ -174,6 +190,21 @@ All colors MUST be HSL.
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+
+  /* Color flash animation for serape stripes */
+  @keyframes color-pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.7;
+      filter: brightness(1.2);
+    }
+  }
+
+  .animate-color-pulse {
+    animation: color-pulse 3s ease-in-out infinite;
   }
   
   .font-serif {
