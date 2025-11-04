@@ -7,7 +7,7 @@ export const FloatingContactButton = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   
   const phoneNumber = "+19173555183";
-  const whatsappNumber = "19173555183";
+  const whatsappNumber = "9173700430";
   
   const handleCall = () => {
     window.location.href = `tel:${phoneNumber}`;
