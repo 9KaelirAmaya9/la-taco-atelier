@@ -18,18 +18,38 @@ serve(async (req) => {
 
     const { items, orderType, customerInfo, orderNumber } = await req.json();
 
-    // Create line items for Stripe
-    const lineItems = items.map((item: any) => ({
-      price_data: {
-        currency: 'usd',
-        product_data: {
-          name: item.name,
-          images: item.image ? [item.image] : [],
+    // Determine site origin for absolute image URLs
+    const origin = req.headers.get('origin') || 'http://localhost:8080';
+
+    // Helper to ensure Stripe receives absolute, valid image URLs
+    const toAbsoluteImage = (img?: string) => {
+      if (!img) return undefined;
+      try {
+        // Already absolute URL
+        const u = new URL(img);
+        return u.href;
+      } catch {
+        // Relative path -> prefix with origin
+        const path = img.startsWith('/') ? img : `/${img}`;
+        return `${origin}${path}`;
+      }
+    };
+
+    // Create line items for Stripe (omit images if invalid)
+    const lineItems = items.map((item: any) => {
+      const imageUrl = toAbsoluteImage(item.image);
+      return {
+        price_data: {
+          currency: 'usd',
+          product_data: {
+            name: item.name,
+            ...(imageUrl ? { images: [imageUrl] } : {}),
+          },
+          unit_amount: Math.round(item.price * 100), // Convert to cents
         },
-        unit_amount: Math.round(item.price * 100), // Convert to cents
-      },
-      quantity: item.quantity,
-    }));
+        quantity: item.quantity,
+      };
+    });
 
     // Add delivery fee if applicable
     if (orderType === 'delivery') {
@@ -45,7 +65,7 @@ serve(async (req) => {
       });
     }
 
-    const origin = req.headers.get('origin') || 'http://localhost:8080';
+    
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
