@@ -124,7 +124,23 @@ const Cart = () => {
       // Redirect to Stripe checkout (prefer new tab to avoid iframe/csp issues)
       if (sessionData?.url) {
         if (checkoutTab) {
-          checkoutTab.location.href = sessionData.url;
+          try {
+            checkoutTab.location.href = sessionData.url;
+          } catch (e) {
+            // Fallback if navigation is blocked
+            window.open(sessionData.url, '_blank', 'noopener,noreferrer') || (window.location.href = sessionData.url);
+          }
+          // Extra safety: if tab didn't navigate after a short delay, redirect current window
+          setTimeout(() => {
+            try {
+              // If we can still read about:blank, it likely didn't navigate
+              if (checkoutTab && checkoutTab.location && checkoutTab.location.href === 'about:blank') {
+                window.location.href = sessionData.url;
+              }
+            } catch {
+              // Cross-origin read means it navigated successfully
+            }
+          }, 400);
         } else {
           window.open(sessionData.url, '_blank', 'noopener,noreferrer') || (window.location.href = sessionData.url);
         }
