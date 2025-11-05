@@ -116,13 +116,30 @@ const Cart = () => {
 
       if (sessionError) throw sessionError;
 
-      // Robust redirect to Stripe Checkout in the same tab to avoid popup blockers/sandbox issues
+      // Redirect to Stripe Checkout from the top window to escape iframe/sandbox
       if (sessionData?.url) {
+        const checkoutUrl = sessionData.url as string;
+        let redirected = false;
         try {
-          window.location.assign(sessionData.url);
-        } catch {
-          // Fallbacks
-          window.location.href = sessionData.url;
+          if (window.top && window.top !== window) {
+            window.top.location.href = checkoutUrl;
+            redirected = true;
+          }
+        } catch (_) {
+          // Accessing window.top can throw in some sandboxes; ignore and try next strategy
+        }
+
+        if (!redirected) {
+          try {
+            window.location.assign(checkoutUrl);
+            redirected = true;
+          } catch {
+            // ignore
+          }
+        }
+
+        if (!redirected) {
+          window.open(checkoutUrl, '_blank', 'noopener,noreferrer') || (window.location.href = checkoutUrl);
         }
       } else {
         throw new Error('No checkout URL received');
