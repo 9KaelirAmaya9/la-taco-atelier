@@ -18,38 +18,20 @@ serve(async (req) => {
 
     const { items, orderType, customerInfo, orderNumber } = await req.json();
 
-    // Determine site origin for absolute image URLs
-    const origin = req.headers.get('origin') || 'http://localhost:8080';
+    // Determine site origin for redirect URLs
+    const origin = req.headers.get('origin') || 'https://1c5a3260-4d54-412b-b8f8-4af54564df01.lovableproject.com';
 
-    // Helper to ensure Stripe receives absolute, valid image URLs
-    const toAbsoluteImage = (img?: string) => {
-      if (!img) return undefined;
-      try {
-        // Already absolute URL
-        const u = new URL(img);
-        return u.href;
-      } catch {
-        // Relative path -> prefix with origin
-        const path = img.startsWith('/') ? img : `/${img}`;
-        return `${origin}${path}`;
-      }
-    };
-
-    // Create line items for Stripe (omit images if invalid)
-    const lineItems = items.map((item: any) => {
-      const imageUrl = toAbsoluteImage(item.image);
-      return {
-        price_data: {
-          currency: 'usd',
-          product_data: {
-            name: item.name,
-            ...(imageUrl ? { images: [imageUrl] } : {}),
-          },
-          unit_amount: Math.round(item.price * 100), // Convert to cents
+    // Create line items for Stripe (omit product images to avoid URL issues)
+    const lineItems = items.map((item: any) => ({
+      price_data: {
+        currency: 'usd',
+        product_data: {
+          name: item.name,
         },
-        quantity: item.quantity,
-      };
-    });
+        unit_amount: Math.round(item.price * 100), // Convert to cents
+      },
+      quantity: item.quantity,
+    }));
 
     // Add delivery fee if applicable
     if (orderType === 'delivery') {
