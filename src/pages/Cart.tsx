@@ -75,7 +75,6 @@ const Cart = () => {
 
     setIsProcessing(true);
     
-    let checkoutTab: Window | null = null;
     try {
       const subtotal = cartTotal;
       const tax = subtotal * 0.08875; // NYC sales tax: 8.875%
@@ -102,11 +101,7 @@ const Cart = () => {
 
       if (error) throw error;
 
-      // Open a new tab immediately to avoid popup blockers, then create Stripe checkout session
-      checkoutTab = window.open('about:blank', '_blank', 'noopener,noreferrer');
-      if (checkoutTab) {
-        checkoutTab.document.write('Redirecting to secure checkout...');
-      }
+      // Create Stripe checkout session
       const { data: sessionData, error: sessionError } = await supabase.functions.invoke(
         'create-checkout-session',
         {
@@ -121,37 +116,21 @@ const Cart = () => {
 
       if (sessionError) throw sessionError;
 
-      // Redirect to Stripe checkout (prefer new tab to avoid iframe/csp issues)
+      // Robust redirect to Stripe Checkout in the same tab to avoid popup blockers/sandbox issues
       if (sessionData?.url) {
-        if (checkoutTab) {
-          try {
-            checkoutTab.location.href = sessionData.url;
-          } catch (e) {
-            // Fallback if navigation is blocked
-            window.open(sessionData.url, '_blank', 'noopener,noreferrer') || (window.location.href = sessionData.url);
-          }
-          // Extra safety: if tab didn't navigate after a short delay, redirect current window
-          setTimeout(() => {
-            try {
-              // If we can still read about:blank, it likely didn't navigate
-              if (checkoutTab && checkoutTab.location && checkoutTab.location.href === 'about:blank') {
-                window.location.href = sessionData.url;
-              }
-            } catch {
-              // Cross-origin read means it navigated successfully
-            }
-          }, 400);
-        } else {
-          window.open(sessionData.url, '_blank', 'noopener,noreferrer') || (window.location.href = sessionData.url);
+        try {
+          window.location.assign(sessionData.url);
+        } catch {
+          // Fallbacks
+          window.location.href = sessionData.url;
         }
       } else {
-        if (checkoutTab) checkoutTab.close();
         throw new Error('No checkout URL received');
       }
 
+
     } catch (error: any) {
       console.error("Order error:", error);
-      if (checkoutTab) checkoutTab.close();
       toast.error("Failed to process payment. Please try again.");
       setIsProcessing(false);
     }
