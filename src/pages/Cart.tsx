@@ -2,7 +2,7 @@ import { Navigation } from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ShoppingCart, ArrowRight, Plus, Minus, Trash2 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCart } from "@/contexts/CartContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -10,13 +10,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
 
 const Cart = () => {
   const { t } = useLanguage();
   const { cart, orderType, setOrderType, updateQuantity, removeFromCart, clearCart, cartTotal, cartCount } = useCart();
+  const [searchParams] = useSearchParams();
+  const [isProcessing, setIsProcessing] = useState(false);
   const [customerInfo, setCustomerInfo] = useState({
     name: "",
     phone: "",
@@ -25,11 +27,28 @@ const Cart = () => {
     notes: "",
   });
 
+  useEffect(() => {
+    const success = searchParams.get("success");
+    const orderNumber = searchParams.get("order_number");
+    
+    if (success === "true" && orderNumber) {
+      toast.success(`Payment successful! Order #${orderNumber} confirmed.`);
+      clearCart();
+      // Clean up URL parameters
+      window.history.replaceState({}, '', '/cart');
+    } else if (searchParams.get("canceled") === "true") {
+      toast.error("Payment was canceled. Your cart items are still here.");
+      window.history.replaceState({}, '', '/cart');
+    }
+  }, [searchParams, clearCart]);
+
   const handlePlaceOrder = async () => {
     if (cart.length === 0) {
       toast.error(t("order.cartEmpty"));
       return;
     }
+
+    if (isProcessing) return;
 
     // Input validation schema
     const orderSchema = z.object({
@@ -54,11 +73,14 @@ const Cart = () => {
       return;
     }
 
+    setIsProcessing(true);
+
     try {
       const subtotal = cartTotal;
       const tax = subtotal * 0.08875; // NYC sales tax: 8.875%
       const total = subtotal + tax;
 
+      // Create order first to get order number
       const { data: orderData, error } = await supabase
         .from("orders")
         .insert([{
@@ -73,39 +95,39 @@ const Cart = () => {
           tax,
           total,
           notes: validation.data.notes || null,
+          status: "pending_payment",
         }])
         .select()
         .single();
 
       if (error) throw error;
 
-      // Send notification
-      try {
-        await supabase.functions.invoke('send-order-notification', {
+      // Create Stripe checkout session
+      const { data: sessionData, error: sessionError } = await supabase.functions.invoke(
+        'create-checkout-session',
+        {
           body: {
+            items: cart,
+            orderType,
+            customerInfo: validation.data,
             orderNumber: orderData.order_number,
-            customerName: validation.data.name,
-            customerEmail: validation.data.email || null,
-            customerPhone: validation.data.phone,
-            orderType: orderType,
-            total: total,
-            items: cart.map(item => ({
-              name: item.name,
-              quantity: item.quantity,
-              price: item.price * item.quantity
-            }))
           }
-        });
-      } catch (notifError) {
-        // Don't fail the order if notification fails
-        toast.warning("Order placed but notification failed to send");
+        }
+      );
+
+      if (sessionError) throw sessionError;
+
+      // Redirect to Stripe checkout
+      if (sessionData?.url) {
+        window.location.href = sessionData.url;
+      } else {
+        throw new Error("No checkout URL received");
       }
 
-      toast.success(`${t("order.placed")} #${orderData.order_number} for ${orderType}!`);
-      clearCart();
-      setCustomerInfo({ name: "", phone: "", email: "", address: "", notes: "" });
     } catch (error: any) {
-      toast.error("Failed to place order. Please try again.");
+      console.error("Order error:", error);
+      toast.error("Failed to process payment. Please try again.");
+      setIsProcessing(false);
     }
   };
 
@@ -309,8 +331,9 @@ const Cart = () => {
                         className="w-full" 
                         size="lg"
                         onClick={handlePlaceOrder}
+                        disabled={isProcessing}
                       >
-                        Place Order
+                        {isProcessing ? "Processing..." : "Pay with Stripe"}
                       </Button>
 
                       <p className="text-xs text-center text-muted-foreground">
