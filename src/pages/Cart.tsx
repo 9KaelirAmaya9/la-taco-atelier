@@ -26,6 +26,7 @@ const Cart = () => {
     address: "",
     notes: "",
   });
+  const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const success = searchParams.get("success");
@@ -42,6 +43,20 @@ const Cart = () => {
     }
   }, [searchParams, clearCart]);
 
+  // Fallback: if automatic redirect is blocked in sandbox, open Checkout in a new tab after a brief delay
+  useEffect(() => {
+    if (!checkoutUrl) return;
+    const t = setTimeout(() => {
+      try {
+        if (document.visibilityState === 'visible') {
+          window.open(checkoutUrl, '_blank', 'noopener,noreferrer');
+        }
+      } catch {
+        // ignore
+      }
+    }, 800);
+    return () => clearTimeout(t);
+  }, [checkoutUrl]);
   const handlePlaceOrder = async () => {
     if (cart.length === 0) {
       toast.error(t("order.cartEmpty"));
@@ -119,6 +134,7 @@ const Cart = () => {
       // Navigate to Stripe Checkout using anchor navigation to escape iframe/sandbox reliably
       if (sessionData?.url) {
         const checkoutUrl = sessionData.url as string;
+        setCheckoutUrl(checkoutUrl);
         try {
           const anchor = document.createElement('a');
           anchor.href = checkoutUrl;
@@ -365,6 +381,19 @@ const Cart = () => {
                       >
                         {isProcessing ? "Processing..." : "Pay with Stripe"}
                       </Button>
+
+                      {checkoutUrl && (
+                        <div className="text-center mt-2">
+                          <a
+                            href={checkoutUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="underline text-primary"
+                          >
+                            If not redirected, click here to open Stripe Checkout
+                          </a>
+                        </div>
+                      )}
 
                       <p className="text-xs text-center text-muted-foreground">
                         {orderType === "delivery" ? t("order.deliveryNote") : t("order.pickupNote")}
