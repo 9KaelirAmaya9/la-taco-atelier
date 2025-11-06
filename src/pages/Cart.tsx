@@ -89,6 +89,17 @@ const Cart = () => {
     }
 
     setIsProcessing(true);
+
+    // Open a placeholder tab immediately on user interaction to bypass popup blockers
+    let checkoutTab: Window | null = null;
+    try {
+      checkoutTab = window.open('', '_blank', 'noopener');
+      if (checkoutTab && checkoutTab.document) {
+        checkoutTab.document.write('<!doctype html><title>Redirecting…</title><body style="font-family:sans-serif;padding:20px;">Redirecting to secure payment…</body>');
+      }
+    } catch {
+      // ignore
+    }
     
     try {
       const subtotal = cartTotal;
@@ -131,10 +142,23 @@ const Cart = () => {
 
       if (sessionError) throw sessionError;
 
-      // Navigate to Stripe Checkout using anchor navigation to escape iframe/sandbox reliably
+      // Navigate to Stripe Checkout; prefer navigating the pre-opened tab
       if (sessionData?.url) {
         const checkoutUrl = sessionData.url as string;
         setCheckoutUrl(checkoutUrl);
+
+        // If we managed to open a tab synchronously, navigate it directly
+        try {
+          // Navigate opened tab if present
+          if (checkoutTab && !checkoutTab.closed) {
+            checkoutTab.location.href = checkoutUrl;
+            return; // Stop here, tab is navigating
+          }
+        } catch {
+          // ignore and try other strategies
+        }
+
+        // Anchor navigation to top frame
         try {
           const anchor = document.createElement('a');
           anchor.href = checkoutUrl;
@@ -143,22 +167,23 @@ const Cart = () => {
           document.body.appendChild(anchor);
           anchor.click();
           anchor.remove();
-        } catch (_) {
+        } catch {
           // ignore; fallback below
         }
 
-        // Stripe.js fallback to handle sandboxed iframes more reliably
+        // Stripe.js fallback (if available)
         try {
           const maybeStripe = (window as any).Stripe;
           if (sessionData?.publishableKey && sessionData?.id && typeof maybeStripe === 'function') {
             const stripe = maybeStripe(sessionData.publishableKey);
-            stripe.redirectToCheckout({ sessionId: sessionData.id });
+            await stripe.redirectToCheckout({ sessionId: sessionData.id });
+            return;
           }
         } catch {
           // ignore
         }
 
-        // Additional fallbacks
+        // As a last resort, try direct navigation
         try {
           if (window.top && window.top !== window) {
             window.top.location.href = checkoutUrl;
@@ -169,16 +194,16 @@ const Cart = () => {
           window.location.href = checkoutUrl;
         }
 
-        // Final safety fallback in case the browser ignored the above
+        // Timed new-tab open if still visible (some sandboxes ignore clicks)
         setTimeout(() => {
           if (document.visibilityState === 'visible') {
             try {
-              window.open(checkoutUrl, '_blank', 'noopener,noreferrer');
+              window.open(checkoutUrl, '_blank');
             } catch {
               try { window.location.href = checkoutUrl; } catch { /* ignore */ }
             }
           }
-        }, 500);
+        }, 400);
       } else {
         throw new Error('No checkout URL received');
       }
