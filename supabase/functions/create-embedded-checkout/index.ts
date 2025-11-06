@@ -47,6 +47,7 @@ serve(async (req) => {
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       ui_mode: 'embedded',
+      payment_method_types: ['card'],
       line_items: lineItems,
       return_url: `${origin}/cart?success=true&order_number=${encodeURIComponent(orderNumber)}`,
       customer_email: customerInfo?.email,
