@@ -18,6 +18,7 @@ function CheckoutForm({ orderNumber, onSuccess }: { orderNumber: string; onSucce
   const stripe = useStripe();
   const elements = useElements();
   const [submitting, setSubmitting] = useState(false);
+  const [isReady, setIsReady] = useState(false);
 
   const handleSubmit = async () => {
     if (!stripe || !elements) return;
@@ -52,9 +53,12 @@ function CheckoutForm({ orderNumber, onSuccess }: { orderNumber: string; onSucce
 
   return (
     <div className="space-y-4">
-      <PaymentElement options={{ layout: "tabs" }} />
-      <Button onClick={handleSubmit} className="w-full" disabled={submitting || !stripe}>
-        {submitting ? "Processing..." : "Pay now"}
+      <PaymentElement 
+        options={{ layout: "tabs" }} 
+        onReady={() => setIsReady(true)}
+      />
+      <Button onClick={handleSubmit} className="w-full" disabled={submitting || !stripe || !isReady}>
+        {submitting ? "Processing..." : isReady ? "Pay now" : "Loading..."}
       </Button>
       <p className="text-xs text-muted-foreground text-center">
         Secure payment powered by Stripe
