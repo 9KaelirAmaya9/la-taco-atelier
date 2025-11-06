@@ -116,31 +116,39 @@ const Cart = () => {
 
       if (sessionError) throw sessionError;
 
-      // Redirect to Stripe Checkout from the top window to escape iframe/sandbox
+      // Navigate to Stripe Checkout using anchor navigation to escape iframe/sandbox reliably
       if (sessionData?.url) {
         const checkoutUrl = sessionData.url as string;
-        let redirected = false;
         try {
-          if (window.top && window.top !== window) {
-            window.top.location.href = checkoutUrl;
-            redirected = true;
-          }
+          const anchor = document.createElement('a');
+          anchor.href = checkoutUrl;
+          anchor.target = '_top';
+          anchor.rel = 'noopener noreferrer';
+          document.body.appendChild(anchor);
+          anchor.click();
+          anchor.remove();
         } catch (_) {
-          // Accessing window.top can throw in some sandboxes; ignore and try next strategy
-        }
-
-        if (!redirected) {
+          // Fallbacks if anchor navigation is blocked
           try {
-            window.location.assign(checkoutUrl);
-            redirected = true;
+            if (window.top && window.top !== window) {
+              window.top.location.href = checkoutUrl;
+            } else {
+              window.location.assign(checkoutUrl);
+            }
           } catch {
-            // ignore
+            window.location.href = checkoutUrl;
           }
         }
-
-        if (!redirected) {
-          window.open(checkoutUrl, '_blank', 'noopener,noreferrer') || (window.location.href = checkoutUrl);
-        }
+        // Final safety fallback in case the browser ignored the click
+        setTimeout(() => {
+          if (document.visibilityState === 'visible') {
+            try {
+              window.location.href = checkoutUrl;
+            } catch {
+              /* ignore */
+            }
+          }
+        }, 300);
       } else {
         throw new Error('No checkout URL received');
       }
