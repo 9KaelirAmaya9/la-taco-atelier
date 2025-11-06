@@ -38,7 +38,24 @@ const Cart = () => {
     const orderNumber = searchParams.get("order_number");
     
     if (success === "true" && orderNumber) {
-      toast.success(`Payment successful! Order #${orderNumber} confirmed.`);
+      // Update order status to paid
+      const updateOrderStatus = async () => {
+        try {
+          const { error } = await supabase
+            .from("orders")
+            .update({ status: "paid" })
+            .eq("order_number", orderNumber);
+          
+          if (error) {
+            console.error("Error updating order status:", error);
+          }
+        } catch (err) {
+          console.error("Failed to update order:", err);
+        }
+      };
+      
+      updateOrderStatus();
+      toast.success(`Payment successful! Order #${orderNumber} is confirmed and paid.`);
       clearCart();
       // Clean up URL parameters
       window.history.replaceState({}, '', '/cart');
