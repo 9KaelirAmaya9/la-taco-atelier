@@ -6,6 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { printReceipt } from "@/utils/printReceipt";
 import { 
   DollarSign, 
   ShoppingBag, 
@@ -14,7 +16,8 @@ import {
   LogOut,
   Clock,
   CheckCircle,
-  XCircle
+  XCircle,
+  Printer
 } from "lucide-react";
 import {
   Select,
@@ -118,6 +121,27 @@ const Admin = () => {
     }
   };
 
+  const handlePrintReceipt = (order: Order) => {
+    try {
+      printReceipt({
+        orderNumber: order.order_number,
+        customerName: order.customer_name,
+        orderType: order.order_type,
+        items: order.items,
+        subtotal: Number(order.subtotal),
+        tax: Number(order.tax),
+        total: Number(order.total),
+        deliveryAddress: order.delivery_address || undefined,
+        notes: order.notes || undefined,
+        createdAt: order.created_at,
+      });
+      toast.success('Printing receipt...');
+    } catch (error) {
+      console.error('Print error:', error);
+      toast.error('Failed to print receipt');
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     const variants: { [key: string]: "default" | "secondary" | "destructive" | "outline" } = {
       pending: "outline",
@@ -155,18 +179,19 @@ const Admin = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 pb-20">
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-4xl font-serif font-bold mb-2">Admin Dashboard</h1>
-            <p className="text-muted-foreground">Welcome back, {user?.email}</p>
+    <ProtectedRoute requiredRole="admin">
+      <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 pb-20">
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex justify-between items-center mb-8">
+            <div>
+              <h1 className="text-4xl font-serif font-bold mb-2">Admin Dashboard</h1>
+              <p className="text-muted-foreground">Welcome back, {user?.email}</p>
+            </div>
+            <Button variant="outline" onClick={handleSignOut}>
+              <LogOut className="h-4 w-4 mr-2" />
+              Sign Out
+            </Button>
           </div>
-          <Button variant="outline" onClick={handleSignOut}>
-            <LogOut className="h-4 w-4 mr-2" />
-            Sign Out
-          </Button>
-        </div>
 
         {/* Analytics Cards */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
@@ -281,6 +306,15 @@ const Admin = () => {
                             <SelectItem value="cancelled">Cancelled</SelectItem>
                           </SelectContent>
                         </Select>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handlePrintReceipt(order)}
+                          className="gap-2"
+                        >
+                          <Printer className="h-4 w-4" />
+                          Print
+                        </Button>
                       </div>
                     </div>
                   </Card>
@@ -291,6 +325,7 @@ const Admin = () => {
         </Card>
       </div>
     </div>
+    </ProtectedRoute>
   );
 };
 

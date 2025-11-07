@@ -15,6 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
 import SecurePaymentModal from "@/components/checkout/SecurePaymentModal";
 import { CheckoutAuthOptions } from "@/components/checkout/CheckoutAuthOptions";
+import { validateDeliveryAddress } from "@/utils/deliveryValidation";
 
 const Cart = () => {
   const { t } = useLanguage();
@@ -115,6 +116,18 @@ const Cart = () => {
     if (orderType === "delivery" && !customerInfo.address.trim()) {
       toast.error("Please provide a delivery address");
       return;
+    }
+
+    // Validate delivery zone
+    if (orderType === "delivery") {
+      const deliveryValidation = await validateDeliveryAddress(customerInfo.address);
+      if (!deliveryValidation.isValid) {
+        toast.error(deliveryValidation.message || "Invalid delivery address");
+        return;
+      }
+      if (deliveryValidation.estimatedMinutes) {
+        toast.success(deliveryValidation.message || `Estimated delivery: ${deliveryValidation.estimatedMinutes} min`);
+      }
     }
 
     setIsProcessing(true);

@@ -4,7 +4,9 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Clock, Package, ChefHat } from "lucide-react";
+import { Clock, Package, ChefHat, Printer } from "lucide-react";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { printReceipt } from "@/utils/printReceipt";
 
 interface Order {
   id: string;
@@ -15,6 +17,10 @@ interface Order {
   items: Array<{ name: string; quantity: number; price: number }>;
   status: string;
   total: number;
+  subtotal: number;
+  tax: number;
+  delivery_address?: string | null;
+  notes?: string | null;
   created_at: string;
 }
 
@@ -50,6 +56,27 @@ const Kitchen = () => {
     } else {
       toast.success("Order status updated");
       fetchOrders();
+    }
+  };
+
+  const handlePrintReceipt = (order: Order) => {
+    try {
+      printReceipt({
+        orderNumber: order.order_number,
+        customerName: order.customer_name,
+        orderType: order.order_type,
+        items: order.items,
+        subtotal: Number(order.subtotal),
+        tax: Number(order.tax),
+        total: Number(order.total),
+        deliveryAddress: order.delivery_address || undefined,
+        notes: order.notes || undefined,
+        createdAt: order.created_at,
+      });
+      toast.success('Printing receipt...');
+    } catch (error) {
+      console.error('Print error:', error);
+      toast.error('Failed to print receipt');
     }
   };
 
@@ -100,25 +127,26 @@ const Kitchen = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-8 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <ChefHat className="h-10 w-10 text-primary" />
-            <div>
-              <h1 className="text-4xl font-bold">Kitchen Display</h1>
-              <p className="text-muted-foreground">
-                {orders.length} active {orders.length === 1 ? "order" : "orders"}
+    <ProtectedRoute requiredRole="kitchen">
+      <div className="min-h-screen bg-background p-4 md:p-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-8 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <ChefHat className="h-10 w-10 text-primary" />
+              <div>
+                <h1 className="text-4xl font-bold">Kitchen Display</h1>
+                <p className="text-muted-foreground">
+                  {orders.length} active {orders.length === 1 ? "order" : "orders"}
+                </p>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="text-sm text-muted-foreground">Auto-refreshing</p>
+              <p className="text-2xl font-bold">
+                {new Date().toLocaleTimeString()}
               </p>
             </div>
           </div>
-          <div className="text-right">
-            <p className="text-sm text-muted-foreground">Auto-refreshing</p>
-            <p className="text-2xl font-bold">
-              {new Date().toLocaleTimeString()}
-            </p>
-          </div>
-        </div>
 
         {orders.length === 0 ? (
           <Card className="p-12 text-center">
@@ -181,11 +209,11 @@ const Kitchen = () => {
                     </div>
                   </div>
 
-                  <div className="flex gap-2">
+                  <div className="space-y-2">
                     {order.status === "pending" && (
                       <Button
                         onClick={() => updateStatus(order.id, "preparing")}
-                        className="flex-1 text-base font-semibold"
+                        className="w-full text-base font-semibold"
                         size="lg"
                       >
                         Start Preparing
@@ -194,20 +222,30 @@ const Kitchen = () => {
                     {order.status === "preparing" && (
                       <Button
                         onClick={() => updateStatus(order.id, "ready")}
-                        className="flex-1 text-base font-semibold"
+                        className="w-full text-base font-semibold"
                         size="lg"
                       >
                         Mark Ready
                       </Button>
                     )}
+                    <Button
+                      variant="outline"
+                      onClick={() => handlePrintReceipt(order)}
+                      className="w-full gap-2"
+                      size="sm"
+                    >
+                      <Printer className="h-4 w-4" />
+                      Print Receipt
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
             ))}
           </div>
         )}
+        </div>
       </div>
-    </div>
+    </ProtectedRoute>
   );
 };
 

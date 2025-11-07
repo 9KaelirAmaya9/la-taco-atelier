@@ -33,8 +33,8 @@ serve(async (req) => {
     const body = await req.text();
     const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET');
     
-    // Verify webhook signature
-    const event = stripe.webhooks.constructEvent(
+    // Verify webhook signature using async method
+    const event = await stripe.webhooks.constructEventAsync(
       body,
       signature,
       webhookSecret || ''

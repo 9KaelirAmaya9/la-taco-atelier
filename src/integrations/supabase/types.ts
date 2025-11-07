@@ -74,6 +74,30 @@ export type Database = {
         }
         Relationships: []
       }
+      delivery_zones: {
+        Row: {
+          created_at: string
+          estimated_minutes: number
+          id: string
+          is_active: boolean
+          zip_code: string
+        }
+        Insert: {
+          created_at?: string
+          estimated_minutes?: number
+          id?: string
+          is_active?: boolean
+          zip_code: string
+        }
+        Update: {
+          created_at?: string
+          estimated_minutes?: number
+          id?: string
+          is_active?: boolean
+          zip_code?: string
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           created_at: string
