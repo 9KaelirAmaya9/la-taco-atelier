@@ -12,6 +12,10 @@ import Order from "./pages/Order";
 import Location from "./pages/Location";
 import Cart from "./pages/Cart";
 import Auth from "./pages/Auth";
+import SignIn from "./pages/SignIn";
+import SignUp from "./pages/SignUp";
+import Profile from "./pages/Profile";
+import Logout from "./pages/Logout";
 import Admin from "./pages/Admin";
 import Kitchen from "./pages/Kitchen";
 import OrderSuccess from "./pages/OrderSuccess";
@@ -34,6 +38,10 @@ const App = () => (
               <Route path="/location" element={<Location />} />
               <Route path="/cart" element={<Cart />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/signin" element={<SignIn />} />
+              <Route path="/signup" element={<SignUp />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/logout" element={<Logout />} />
               <Route path="/admin" element={<Admin />} />
               <Route path="/kitchen" element={<Kitchen />} />
               <Route path="/order-success" element={<OrderSuccess />} />

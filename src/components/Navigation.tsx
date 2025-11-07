@@ -1,10 +1,11 @@
 import { Link, useLocation } from "react-router-dom";
-import { useState } from "react";
-import { Menu, X, ShoppingCart } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Menu, X, ShoppingCart, User } from "lucide-react";
 import { Button } from "./ui/button";
 import { LanguageSwitch } from "./LanguageSwitch";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCart } from "@/contexts/CartContext";
+import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/logo-illustration.png";
 import {
   NavigationMenu,
@@ -18,8 +19,22 @@ import {
 export const Navigation = () => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const { t } = useLanguage();
   const { cartCount } = useCart();
+
+  useEffect(() => {
+    // Check auth status
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsAuthenticated(!!session);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setIsAuthenticated(!!session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -124,6 +139,20 @@ export const Navigation = () => {
 
             <LanguageSwitch />
 
+            {isAuthenticated ? (
+              <Link to="/profile">
+                <Button variant="outline" size="icon">
+                  <User className="h-5 w-5" />
+                </Button>
+              </Link>
+            ) : (
+              <Link to="/signin">
+                <Button variant="outline" size="sm">
+                  Sign In
+                </Button>
+              </Link>
+            )}
+
             <Link to="/cart">
               <Button variant="outline" size="icon" className="relative">
                 <ShoppingCart className="h-5 w-5" />
@@ -178,6 +207,23 @@ export const Navigation = () => {
               >
                 {t("nav.location")}
               </Link>
+              {isAuthenticated ? (
+                <Link
+                  to="/profile"
+                  className={`text-sm font-medium ${isActive("/profile") ? "text-primary" : "text-foreground"}`}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Profile
+                </Link>
+              ) : (
+                <Link
+                  to="/signin"
+                  className={`text-sm font-medium ${isActive("/signin") ? "text-primary" : "text-foreground"}`}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Sign In
+                </Link>
+              )}
               <Link
                 to="/cart"
                 className="text-sm font-medium text-foreground"
