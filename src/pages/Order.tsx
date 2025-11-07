@@ -233,7 +233,7 @@ const Order = () => {
                               "mb-6 text-center transition-all duration-700",
                               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
                             )}>
-                              <h3 className="font-serif text-2xl md:text-3xl font-semibold text-foreground mb-2">
+                              <h3 className="font-serif text-2xl md:text-3xl font-semibold bg-gradient-to-r from-serape-red via-serape-pink to-serape-purple bg-clip-text text-transparent mb-2">
                                 {subcategory}
                               </h3>
                               <div className="h-0.5 w-24 mx-auto rounded-full bg-gradient-to-r from-serape-orange via-serape-yellow to-serape-green"></div>
