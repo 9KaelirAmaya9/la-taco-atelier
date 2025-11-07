@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FlavorSelectionDialog } from "@/components/FlavorSelectionDialog";
+import { MenuItemModal } from "@/components/MenuItemModal";
 import { Plus, Star, ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -24,6 +25,8 @@ const Order = () => {
   const { orderType, setOrderType, addToCart } = useCart();
   const [flavorDialogOpen, setFlavorDialogOpen] = useState(false);
   const [pendingItem, setPendingItem] = useState<{ id: string; name: string; price: number; image?: string } | null>(null);
+  const [menuItemModalOpen, setMenuItemModalOpen] = useState(false);
+  const [selectedMenuItem, setSelectedMenuItem] = useState<any>(null);
 
   // Get all unique top categories
   const allTopCategories = Array.from(new Set(menuItems.map(item => item.topCategory)));
@@ -121,10 +124,14 @@ const Order = () => {
 
         {/* 3-Column Layout: Filter | Menu Grid | Spacer */}
         <div className="flex gap-4 px-4">
-          {/* Left Filter Sidebar - Sticky */}
+          {/* Left Filter Sidebar - Sticky & Scrollable */}
           <aside 
-            className="sticky top-20 h-fit bg-card/95 backdrop-blur-sm border border-border rounded-lg p-4 shadow-lg hidden lg:block"
-            style={{ width: 'calc(10% + 2rem)', minWidth: '200px' }}
+            className="sticky top-20 bg-card/95 backdrop-blur-sm border border-border rounded-lg p-4 shadow-lg hidden lg:block overflow-y-auto"
+            style={{ 
+              width: 'calc(10% + 2rem)', 
+              minWidth: '200px',
+              maxHeight: 'calc(100vh - 6rem)'
+            }}
           >
             <h3 className="font-semibold text-lg mb-4 text-center border-b border-border pb-2">
               {t("order.filterBy")}
@@ -242,13 +249,24 @@ const Order = () => {
                                   });
                                   
                                   return (
-                                    <div
+                                     <div
                                       ref={cardRef}
                                       className={cn(
-                                        "w-full max-w-xs transition-all duration-500",
+                                        "w-full max-w-xs transition-all duration-500 cursor-pointer",
                                         cardVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
                                       )}
                                       style={{ transitionDelay: `${index * 50}ms` }}
+                                      onClick={() => {
+                                        setSelectedMenuItem({
+                                          id: item.id,
+                                          name: getMenuItemName(item.id, language, item.name),
+                                          description: item.description ? getMenuItemDescription(item.id, language, item.description) : undefined,
+                                          price: item.price,
+                                          image: item.image,
+                                          bestSeller: item.bestSeller
+                                        });
+                                        setMenuItemModalOpen(true);
+                                      }}
                                     >
                                       <Card className="overflow-hidden hover:shadow-elegant transition-all duration-300 group flex flex-col border-2 border-transparent hover:border-primary/10 bg-card h-full">
                                         {item.image && (
@@ -273,41 +291,49 @@ const Order = () => {
                                           </div>
                                         )}
                                         <div className="p-4 flex flex-col flex-1 bg-card">
-                                          <div className="flex items-start justify-between mb-2">
-                                            <div className="flex-1">
-                                              <h3 className="font-serif text-base md:text-lg font-semibold line-clamp-2">
-                                                {getMenuItemName(item.id, language, item.name)}
-                                              </h3>
-                                              {item.bestSeller && !item.image && (
-                                                <Badge className="mt-1 gap-1 bg-gradient-to-r from-serape-yellow to-serape-orange text-white border-0 text-xs">
-                                                  <Star className="h-3 w-3 fill-current" />
-                                                  Best
-                                                </Badge>
-                                              )}
-                                            </div>
-                                            <span className="text-base md:text-lg font-semibold bg-gradient-to-r from-serape-red via-serape-pink to-serape-purple bg-clip-text text-transparent whitespace-nowrap ml-2 drop-shadow-sm">
-                                              ${item.price.toFixed(2)}
-                                            </span>
-                                          </div>
+                                          {/* Name First */}
+                                          <h3 className="font-serif text-base md:text-lg font-semibold line-clamp-2 mb-2">
+                                            {getMenuItemName(item.id, language, item.name)}
+                                            {item.bestSeller && !item.image && (
+                                              <Badge className="ml-2 gap-1 bg-gradient-to-r from-serape-yellow to-serape-orange text-white border-0 text-xs">
+                                                <Star className="h-3 w-3 fill-current" />
+                                                Best
+                                              </Badge>
+                                            )}
+                                          </h3>
+                                          
+                                          {/* Description Second */}
                                           {item.description && (
-                                            <p className="text-xs md:text-sm text-muted-foreground mb-3 line-clamp-2">
+                                            <p className="text-xs md:text-sm text-muted-foreground mb-3 line-clamp-2 flex-1">
                                               {getMenuItemDescription(item.id, language, item.description)}
                                             </p>
                                           )}
                                           
-                                          <Button 
-                                            size="sm" 
-                                            onClick={() => handleAddToCart({ 
-                                              id: item.id, 
-                                              name: getMenuItemName(item.id, language, item.name), 
-                                              price: item.price,
-                                              image: item.image 
-                                            })}
-                                            className="w-full mt-auto gap-2"
-                                          >
-                                            <Plus className="h-4 w-4" />
-                                            {t("order.addToCart")}
-                                          </Button>
+                                          {/* Price Right Above Cart */}
+                                          <div className="mt-auto space-y-2">
+                                            <div className="text-center">
+                                              <span className="text-lg md:text-xl font-semibold bg-gradient-to-r from-serape-red via-serape-pink to-serape-purple bg-clip-text text-transparent">
+                                                ${item.price.toFixed(2)}
+                                              </span>
+                                            </div>
+                                            
+                                            <Button 
+                                              size="sm" 
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleAddToCart({ 
+                                                  id: item.id, 
+                                                  name: getMenuItemName(item.id, language, item.name), 
+                                                  price: item.price,
+                                                  image: item.image 
+                                                });
+                                              }}
+                                              className="w-full gap-2"
+                                            >
+                                              <Plus className="h-4 w-4" />
+                                              {t("order.addToCart")}
+                                            </Button>
+                                          </div>
                                         </div>
                                       </Card>
                                     </div>
@@ -343,6 +369,15 @@ const Order = () => {
         onSelectFlavor={handleFlavorSelect}
         itemName={pendingItem?.name || ""}
       />
+
+      {selectedMenuItem && (
+        <MenuItemModal
+          open={menuItemModalOpen}
+          onOpenChange={setMenuItemModalOpen}
+          item={selectedMenuItem}
+          onAddToCart={handleAddToCart}
+        />
+      )}
     </div>
   );
 };
