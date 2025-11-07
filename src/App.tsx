@@ -15,6 +15,7 @@ import Auth from "./pages/Auth";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import Profile from "./pages/Profile";
+import OrderHistory from "./pages/OrderHistory";
 import Logout from "./pages/Logout";
 import Admin from "./pages/Admin";
 import Kitchen from "./pages/Kitchen";
@@ -41,6 +42,7 @@ const App = () => (
               <Route path="/signin" element={<SignIn />} />
               <Route path="/signup" element={<SignUp />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/order-history" element={<OrderHistory />} />
               <Route path="/logout" element={<Logout />} />
               <Route path="/admin" element={<Admin />} />
               <Route path="/kitchen" element={<Kitchen />} />

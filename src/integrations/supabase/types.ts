@@ -52,6 +52,7 @@ export type Database = {
           tax: number
           total: number
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           created_at?: string
@@ -69,6 +70,7 @@ export type Database = {
           tax?: number
           total: number
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           created_at?: string
@@ -86,6 +88,37 @@ export type Database = {
           tax?: number
           total?: number
           updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          default_delivery_address: string | null
+          id: string
+          name: string | null
+          phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          default_delivery_address?: string | null
+          id?: string
+          name?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          default_delivery_address?: string | null
+          id?: string
+          name?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

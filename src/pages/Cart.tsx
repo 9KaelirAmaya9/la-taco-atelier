@@ -124,12 +124,16 @@ const Cart = () => {
       const tax = subtotal * 0.08875; // NYC sales tax: 8.875%
       const total = subtotal + tax;
 
+      // Get current user if authenticated
+      const { data: { session } } = await supabase.auth.getSession();
+      
       // Generate order number on client to avoid needing SELECT permissions
       const orderNumber = `ORD-${new Date().toISOString().slice(0,10).replace(/-/g,'')}-${Math.floor(1000 + Math.random() * 9000)}`;
       const { error } = await supabase
         .from("orders")
         .insert([{
           order_number: orderNumber,
+          user_id: session?.user?.id || null,
           customer_name: validation.data.name,
           customer_email: validation.data.email || null,
           customer_phone: validation.data.phone,

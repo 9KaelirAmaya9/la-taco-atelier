@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Loader2, User, LogOut, Mail, Phone, MapPin } from "lucide-react";
+import { Loader2, User, LogOut, Mail, Phone, MapPin, History } from "lucide-react";
 import { Navigation } from "@/components/Navigation";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -35,7 +35,23 @@ const Profile = () => {
       }
 
       setUser(session.user);
-      // You can load additional profile data from a profiles table here if needed
+      
+      // Load profile data
+      const { data: profile, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("user_id", session.user.id)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Error loading profile:", error);
+      } else if (profile) {
+        setProfileData({
+          name: profile.name || "",
+          phone: profile.phone || "",
+          address: profile.default_delivery_address || "",
+        });
+      }
     } catch (error) {
       console.error("Error checking user:", error);
       navigate("/signin");
@@ -49,8 +65,19 @@ const Profile = () => {
     setIsSaving(true);
 
     try {
-      // Here you would typically save to a profiles table
-      // For now, we'll just show a success message
+      if (!user) return;
+
+      const { error } = await supabase
+        .from("profiles")
+        .upsert({
+          user_id: user.id,
+          name: profileData.name,
+          phone: profileData.phone,
+          default_delivery_address: profileData.address,
+        });
+
+      if (error) throw error;
+      
       toast.success("Profile updated successfully!");
     } catch (error: any) {
       toast.error(error.message || "Failed to update profile");
@@ -176,6 +203,18 @@ const Profile = () => {
                     )}
                   </Button>
                 </form>
+              </CardContent>
+            </Card>
+
+            {/* Order History */}
+            <Card>
+              <CardContent className="pt-6">
+                <Link to="/order-history">
+                  <Button variant="outline" className="w-full">
+                    <History className="mr-2 h-4 w-4" />
+                    View Order History
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
 
