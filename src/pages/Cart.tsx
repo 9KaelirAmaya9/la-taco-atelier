@@ -2,7 +2,7 @@ import { Navigation } from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ShoppingCart, ArrowRight, Plus, Minus, Trash2 } from "lucide-react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCart } from "@/contexts/CartContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -19,6 +19,7 @@ const Cart = () => {
   const { t } = useLanguage();
   const { cart, orderType, setOrderType, updateQuantity, removeFromCart, clearCart, cartTotal, cartCount } = useCart();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
   const [customerInfo, setCustomerInfo] = useState({
     name: "",
@@ -374,14 +375,12 @@ const Cart = () => {
                           orderType={orderType}
                           cartTotal={cartTotal}
                           onSuccess={() => {
-                            toast.success(`Payment successful! Order #${currentOrderNumber} confirmed.`);
                             clearCart();
                             setCustomerInfo({ name: "", phone: "", email: "", address: "", notes: "" });
-                            window.history.replaceState({}, '', '/cart');
                             setShowCheckout(false);
                             setCheckoutClientSecret(null);
                             setCheckoutPublishableKey(null);
-                            setCurrentOrderNumber(null);
+                            navigate(`/order-success?order_number=${currentOrderNumber}`);
                           }}
                         />
                       )}
