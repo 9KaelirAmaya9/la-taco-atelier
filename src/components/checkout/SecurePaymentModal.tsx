@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -46,6 +46,26 @@ function PaymentForm({
   const [isProcessing, setIsProcessing] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // Detect PaymentElement load errors (e.g., account/key mismatch)
+  useEffect(() => {
+    if (!elements) return;
+    const paymentElement = elements.getElement('payment');
+    if (!paymentElement) return;
+
+    const handleLoadError = (event: any) => {
+      const msg = event?.error?.message || 'Payment form failed to load. Please try again or contact support.';
+      setErrorMessage(msg);
+      toast.error(msg);
+    };
+
+    // @ts-ignore - Stripe types: PaymentElement supports 'loaderror'
+    paymentElement.on('loaderror', handleLoadError);
+    return () => {
+      // @ts-ignore
+      paymentElement.off('loaderror', handleLoadError);
+    };
+  }, [elements]);
 
   const tax = cartTotal * 0.08875;
   const total = cartTotal + tax;
@@ -168,18 +188,7 @@ function PaymentForm({
           <PaymentElement 
             options={{
               layout: 'tabs',
-              business: { name: 'Ricos Tacos' },
-              fields: {
-                billingDetails: {
-                  address: {
-                    country: 'auto',
-                    postalCode: 'auto'
-                  }
-                }
-              },
-              terms: {
-                card: 'auto'
-              }
+              business: { name: 'Ricos Tacos' }
             }}
             onReady={() => setIsReady(true)}
           />
@@ -229,10 +238,28 @@ export default function SecurePaymentModal({
   cartTotal,
   onSuccess,
 }: SecurePaymentModalProps) {
-  const stripePromise = useMemo<Promise<Stripe | null>>(
-    () => loadStripe(publishableKey),
-    [publishableKey]
-  );
+  const [stripeInstance, setStripeInstance] = useState<Stripe | null | undefined>(undefined);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const inst = await loadStripe(publishableKey);
+        if (mounted) {
+          setStripeInstance(inst);
+          if (!inst) {
+            toast.error('Stripe initialization failed. Please verify your publishable key.');
+          }
+        }
+      } catch (e: any) {
+        if (mounted) {
+          setStripeInstance(null);
+          toast.error(e?.message || 'Failed to initialize payment.');
+        }
+      }
+    })();
+    return () => { mounted = false; };
+  }, [publishableKey]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -244,8 +271,17 @@ export default function SecurePaymentModal({
           </DialogDescription>
         </DialogHeader>
         
-        {clientSecret && (
-          <Elements stripe={stripePromise} options={{ clientSecret }}>
+        {clientSecret && stripeInstance === undefined && (
+          <div className="p-4 text-sm text-muted-foreground">Initializing secure payment form…</div>
+        )}
+        {clientSecret && stripeInstance === null && (
+          <div className="flex items-start gap-2 p-3 bg-destructive/10 border border-destructive/30 rounded-lg text-sm">
+            <AlertCircle className="h-4 w-4 text-destructive mt-0.5 flex-shrink-0" />
+            <p className="text-destructive">Unable to initialize Stripe. Please refresh the page or contact support.</p>
+          </div>
+        )}
+        {clientSecret && stripeInstance && (
+          <Elements stripe={stripeInstance} options={{ clientSecret }}>
             <PaymentForm
               orderNumber={orderNumber}
               customerInfo={customerInfo}
