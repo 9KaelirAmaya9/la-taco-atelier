@@ -374,6 +374,7 @@ const Cart = () => {
                           customerInfo={customerInfo}
                           orderType={orderType}
                           cartTotal={cartTotal}
+                          cart={cart}
                           onSuccess={() => {
                             clearCart();
                             setCustomerInfo({ name: "", phone: "", email: "", address: "", notes: "" });

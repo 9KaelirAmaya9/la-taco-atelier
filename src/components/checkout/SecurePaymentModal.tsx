@@ -7,6 +7,7 @@ import { loadStripe, Stripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { AlertCircle, CreditCard, Lock } from 'lucide-react';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface CustomerInfo {
   name: string;
@@ -25,6 +26,7 @@ interface SecurePaymentModalProps {
   customerInfo: CustomerInfo;
   orderType: 'pickup' | 'delivery';
   cartTotal: number;
+  cart: Array<{ name: string; price: number; quantity: number }>;
   onSuccess: () => void;
 }
 
@@ -32,13 +34,15 @@ function PaymentForm({
   orderNumber, 
   customerInfo, 
   orderType, 
-  cartTotal, 
+  cartTotal,
+  cart,
   onSuccess 
 }: { 
   orderNumber: string; 
   customerInfo: CustomerInfo;
   orderType: string;
   cartTotal: number;
+  cart: Array<{ name: string; price: number; quantity: number }>;
   onSuccess: () => void;
 }) {
   const stripe = useStripe();
@@ -113,6 +117,26 @@ function PaymentForm({
       }
 
       if (paymentIntent && (paymentIntent.status === 'succeeded' || paymentIntent.status === 'processing')) {
+        // Send confirmation email
+        try {
+          await supabase.functions.invoke('send-order-confirmation', {
+            body: {
+              orderNumber,
+              customerName: customerInfo.name,
+              customerEmail: customerInfo.email,
+              orderType,
+              items: cart,
+              subtotal: cartTotal,
+              tax: cartTotal * 0.08875,
+              total: cartTotal * 1.08875,
+              deliveryAddress: orderType === 'delivery' ? customerInfo.address : undefined
+            }
+          });
+        } catch (emailError) {
+          console.error('Failed to send confirmation email:', emailError);
+          // Don't fail the transaction if email fails
+        }
+        
         toast.success('Payment successful!');
         onSuccess();
       } else {
@@ -236,6 +260,7 @@ export default function SecurePaymentModal({
   customerInfo,
   orderType,
   cartTotal,
+  cart,
   onSuccess,
 }: SecurePaymentModalProps) {
   const [stripeInstance, setStripeInstance] = useState<Stripe | null | undefined>(undefined);
@@ -287,6 +312,7 @@ export default function SecurePaymentModal({
               customerInfo={customerInfo}
               orderType={orderType}
               cartTotal={cartTotal}
+              cart={cart}
               onSuccess={onSuccess}
             />
           </Elements>
