@@ -2,7 +2,7 @@ import { Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export const FloatingContactButton = () => {
-  const phoneNumber = "+19173555183";
+  const phoneNumber = "+17186334816";
   
   const handleCall = () => {
     window.location.href = `tel:${phoneNumber}`;
