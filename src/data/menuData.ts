@@ -20,6 +20,8 @@ import barbacheraTaco from "@/assets/menu/barbachera-taco.jpg";
 import carneAsadaTaco from "@/assets/menu/carne-asada-taco.jpg";
 import orejaTaco from "@/assets/menu/oreja-taco.jpg";
 import chilloTaco from "@/assets/menu/chillo-taco.jpg";
+import huevosRancheros from "@/assets/menu/huevos-rancheros.jpg";
+import huevosMexicana from "@/assets/menu/huevos-mexicana.jpg";
 
 import taquitoPastor from "@/assets/menu/taquito-pastor.jpg";
 import taquitoCarnitas from "@/assets/menu/taquito-carnitas.jpg";
@@ -193,8 +195,8 @@ export const menuItems: MenuItem[] = [
   { id: "to7", name: "Huevos con Jamon", description: "Ham and fluffy scrambled eggs with rice and beans", price: 12.00, category: "Desayunos Mexicanos", topCategory: "Breakfast", subcategory: "Traditional Breakfast", image: tortaJamonHuevo },
   { id: "to8", name: "Huevos con Salchicha", description: "Eggs with hot dogs, served with rice and beans", price: 12.00, category: "Desayunos Mexicanos", topCategory: "Breakfast", subcategory: "Traditional Breakfast", image: tortaSalchicha },
   { id: "to9", name: "Huevos con Chorizo", description: "Mexican sausage with eggs, rice and beans", price: 12.00, category: "Desayunos Mexicanos", topCategory: "Breakfast", subcategory: "Traditional Breakfast", image: tortaChorizo },
-  { id: "d02", name: "Huevos a la Mexicana", description: "Eggs with jalapeño, onions, and tomato, served with rice and beans", price: 12.00, category: "Desayunos Mexicanos", topCategory: "Breakfast", subcategory: "Traditional Breakfast" },
-  { id: "d03", name: "Huevos Rancheros", description: "Fried eggs over tortillas topped with salsa, served with rice and beans", price: 12.00, category: "Desayunos Mexicanos", topCategory: "Breakfast", subcategory: "Traditional Breakfast" },
+  { id: "d02", name: "Huevos a la Mexicana", description: "Eggs with jalapeño, onions, and tomato, served with rice and beans", price: 12.00, category: "Desayunos Mexicanos", topCategory: "Breakfast", subcategory: "Traditional Breakfast", image: huevosMexicana },
+  { id: "d03", name: "Huevos Rancheros", description: "Fried eggs over tortillas topped with salsa, served with rice and beans", price: 12.00, category: "Desayunos Mexicanos", topCategory: "Breakfast", subcategory: "Traditional Breakfast", image: huevosRancheros },
   { id: "d04", name: "Chilaquiles Regulares con Huevos", description: "Crispy tortilla chips in salsa with fried eggs, cream, onions and cheese", price: 11.95, category: "Desayunos Mexicanos", topCategory: "Breakfast", subcategory: "Chilaquiles", image: chilaquilesCecina },
   { id: "p12", name: "Chilaquiles con Carne", description: "Crispy tortilla chips in salsa with grilled beef and fried eggs", price: 14.95, category: "Desayunos Mexicanos", topCategory: "Breakfast", subcategory: "Chilaquiles", image: chilaquilesCecina },
   { id: "d05", name: "Chilaquiles con Carne y Huevos", description: "Crispy tortilla chips in salsa with meat and fried eggs, cream, onions and cheese", price: 17.95, category: "Desayunos Mexicanos", topCategory: "Breakfast", subcategory: "Chilaquiles", image: chilaquilesCecina },
