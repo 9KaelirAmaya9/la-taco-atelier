@@ -21,6 +21,7 @@ interface MenuItemModalProps {
     price: number;
     image?: string;
     bestSeller?: boolean;
+    subcategory?: string;
   };
   onAddToCart: (item: { id: string; name: string; price: number; image?: string }) => void;
 }
@@ -42,8 +43,61 @@ const defaultAddons = [
   { id: "beans", name: "Refried Beans", price: 1.50 },
 ];
 
+// Flavor options for different drink categories
+const smoothieFlavors = [
+  "Chocolate",
+  "Mamey",
+  "Strawberry",
+  "Banana",
+  "Mango",
+  "Papaya",
+];
+
+const aguasFrescasFlavors = [
+  "Horchata",
+  "Jamaica (Hibiscus)",
+  "Tamarindo",
+  "Piña (Pineapple)",
+  "Limón (Limeade)",
+  "Sandía (Watermelon)",
+];
+
+const sodaFlavors = [
+  "Jarritos Tamarindo",
+  "Jarritos Mandarina",
+  "Jarritos Limón",
+  "Coca-Cola",
+  "Pepsi",
+  "Sprite",
+  "Orange Fanta",
+];
+
+const specialtyDrinkFlavors = [
+  "Piña Colada",
+  "Mango",
+  "Strawberry",
+  "Coconut",
+];
+
 export function MenuItemModal({ open, onOpenChange, item, onAddToCart }: MenuItemModalProps) {
   const [selectedAddons, setSelectedAddons] = useState<Set<string>>(new Set());
+  const [selectedFlavor, setSelectedFlavor] = useState<string>("");
+
+  // Determine if this item should show flavors instead of add-ons
+  const isDrinkWithFlavors = 
+    item.subcategory === "Smoothies" || 
+    item.subcategory === "Specialty Drinks" || 
+    item.subcategory === "Sodas" ||
+    item.subcategory === "Fresh Drinks";
+
+  // Get the appropriate flavor list
+  const getFlavors = () => {
+    if (item.subcategory === "Smoothies") return smoothieFlavors;
+    if (item.subcategory === "Fresh Drinks") return aguasFrescasFlavors;
+    if (item.subcategory === "Sodas") return sodaFlavors;
+    if (item.subcategory === "Specialty Drinks") return specialtyDrinkFlavors;
+    return [];
+  };
 
   const toggleAddon = (addonId: string) => {
     setSelectedAddons((prev) => {
@@ -58,6 +112,9 @@ export function MenuItemModal({ open, onOpenChange, item, onAddToCart }: MenuIte
   };
 
   const calculateTotal = () => {
+    if (isDrinkWithFlavors) {
+      return item.price;
+    }
     const addonsTotal = defaultAddons
       .filter((addon) => selectedAddons.has(addon.id))
       .reduce((sum, addon) => sum + addon.price, 0);
@@ -65,19 +122,29 @@ export function MenuItemModal({ open, onOpenChange, item, onAddToCart }: MenuIte
   };
 
   const handleAddToCart = () => {
-    const addonsText = defaultAddons
-      .filter((addon) => selectedAddons.has(addon.id))
-      .map((addon) => addon.name)
-      .join(", ");
-    
-    onAddToCart({
-      id: item.id,
-      name: addonsText ? `${item.name} + ${addonsText}` : item.name,
-      price: calculateTotal(),
-      image: item.image,
-    });
-    
-    setSelectedAddons(new Set());
+    if (isDrinkWithFlavors) {
+      onAddToCart({
+        id: item.id,
+        name: selectedFlavor ? `${item.name} - ${selectedFlavor}` : item.name,
+        price: item.price,
+        image: item.image,
+      });
+      setSelectedFlavor("");
+    } else {
+      const addonsText = defaultAddons
+        .filter((addon) => selectedAddons.has(addon.id))
+        .map((addon) => addon.name)
+        .join(", ");
+      
+      onAddToCart({
+        id: item.id,
+        name: addonsText ? `${item.name} + ${addonsText}` : item.name,
+        price: calculateTotal(),
+        image: item.image,
+      });
+      
+      setSelectedAddons(new Set());
+    }
     onOpenChange(false);
   };
 
@@ -114,52 +181,88 @@ export function MenuItemModal({ open, onOpenChange, item, onAddToCart }: MenuIte
           </div>
         )}
 
-        {/* Ingredients Section */}
-        <div className="space-y-2">
-          <h3 className="font-semibold text-lg">Ingredients</h3>
-          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {defaultIngredients.map((ingredient, index) => (
-              <li key={index} className="flex items-center gap-2 text-sm text-muted-foreground">
-                <div className="h-1.5 w-1.5 rounded-full bg-primary"></div>
-                {ingredient}
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Add-ons Section */}
-        <div className="space-y-3">
-          <h3 className="font-semibold text-lg">Add-ons</h3>
+        {/* Ingredients Section - Only show for non-drink items */}
+        {!isDrinkWithFlavors && (
           <div className="space-y-2">
-            {defaultAddons.map((addon) => (
-              <div
-                key={addon.id}
-                className="flex items-center justify-between p-3 rounded-lg border border-border hover:bg-accent transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <Checkbox
-                    id={addon.id}
-                    checked={selectedAddons.has(addon.id)}
-                    onCheckedChange={() => toggleAddon(addon.id)}
-                  />
-                  <label htmlFor={addon.id} className="cursor-pointer text-sm font-medium">
-                    {addon.name}
-                  </label>
-                </div>
-                <span className="text-sm font-semibold">+${addon.price.toFixed(2)}</span>
-              </div>
-            ))}
+            <h3 className="font-semibold text-lg">Ingredients</h3>
+            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {defaultIngredients.map((ingredient, index) => (
+                <li key={index} className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="h-1.5 w-1.5 rounded-full bg-primary"></div>
+                  {ingredient}
+                </li>
+              ))}
+            </ul>
           </div>
-        </div>
+        )}
+
+        {/* Flavors Section - For drinks */}
+        {isDrinkWithFlavors && (
+          <div className="space-y-3">
+            <h3 className="font-semibold text-lg">Available Flavors</h3>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {getFlavors().map((flavor) => (
+                <button
+                  key={flavor}
+                  onClick={() => setSelectedFlavor(flavor)}
+                  className={`p-3 rounded-lg border-2 transition-all text-sm font-medium ${
+                    selectedFlavor === flavor
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-border hover:border-primary/50 hover:bg-accent"
+                  }`}
+                >
+                  {flavor}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Add-ons Section - Only show for non-drink items */}
+        {!isDrinkWithFlavors && (
+          <div className="space-y-3">
+            <h3 className="font-semibold text-lg">Add-ons</h3>
+            <div className="space-y-2">
+              {defaultAddons.map((addon) => (
+                <div
+                  key={addon.id}
+                  className="flex items-center justify-between p-3 rounded-lg border border-border hover:bg-accent transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <Checkbox
+                      id={addon.id}
+                      checked={selectedAddons.has(addon.id)}
+                      onCheckedChange={() => toggleAddon(addon.id)}
+                    />
+                    <label htmlFor={addon.id} className="cursor-pointer text-sm font-medium">
+                      {addon.name}
+                    </label>
+                  </div>
+                  <span className="text-sm font-semibold">+${addon.price.toFixed(2)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Price and Add to Cart */}
         <div className="border-t border-border pt-4 space-y-3">
-          <div className="flex items-center justify-between text-xl font-semibold">
-            <span>Total</span>
-            <span className="bg-gradient-to-r from-serape-red via-serape-pink to-serape-purple bg-clip-text text-transparent">
-              ${calculateTotal().toFixed(2)}
-            </span>
-          </div>
+          {!isDrinkWithFlavors && (
+            <div className="flex items-center justify-between text-xl font-semibold">
+              <span>Total</span>
+              <span className="bg-gradient-to-r from-serape-red via-serape-pink to-serape-purple bg-clip-text text-transparent">
+                ${calculateTotal().toFixed(2)}
+              </span>
+            </div>
+          )}
+          {isDrinkWithFlavors && (
+            <div className="flex items-center justify-between text-xl font-semibold">
+              <span>Price</span>
+              <span className="bg-gradient-to-r from-serape-red via-serape-pink to-serape-purple bg-clip-text text-transparent">
+                ${item.price.toFixed(2)}
+              </span>
+            </div>
+          )}
           <Button onClick={handleAddToCart} className="w-full gap-2" size="lg">
             <Plus className="h-5 w-5" />
             Add to Cart

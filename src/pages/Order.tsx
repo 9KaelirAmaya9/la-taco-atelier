@@ -263,7 +263,8 @@ const Order = () => {
                                           description: item.description ? getMenuItemDescription(item.id, language, item.description) : undefined,
                                           price: item.price,
                                           image: item.image,
-                                          bestSeller: item.bestSeller
+                                          bestSeller: item.bestSeller,
+                                          subcategory: item.subcategory
                                         });
                                         setMenuItemModalOpen(true);
                                       }}
