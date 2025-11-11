@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { MapPin, Clock, Phone } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import logo from "@/assets/logo-illustration.png";
+import ServiceAreaMap from "@/components/ServiceAreaMap";
 
 const Location = () => {
   const { t } = useLanguage();
@@ -77,19 +78,10 @@ const Location = () => {
               </div>
             </Card>
 
-            {/* Map */}
-            <Card className="p-0 overflow-hidden">
-              <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3027.3876959642627!2d-74.01029!3d40.64675!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c25ac0a7c0b7c9%3A0x0!2s505%205th%20Ave%2C%20Brooklyn%2C%20NY%2011220!5e0!3m2!1sen!2sus!4v1234567890"
-                width="100%"
-                height="100%"
-                style={{ border: 0, minHeight: "450px" }}
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                title="Ricos Tacos Location"
-              />
-            </Card>
+            {/* Service Area Map */}
+            <div>
+              <ServiceAreaMap />
+            </div>
           </div>
 
           {/* Services */}

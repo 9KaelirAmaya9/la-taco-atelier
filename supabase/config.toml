@@ -14,3 +14,6 @@ verify_jwt = false
 
 [functions.create-embedded-checkout]
 verify_jwt = false
+
+[functions.validate-delivery-address]
+verify_jwt = false

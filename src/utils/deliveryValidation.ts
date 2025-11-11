@@ -6,38 +6,20 @@ export const validateDeliveryAddress = async (address: string): Promise<{
   message?: string;
 }> => {
   try {
-    // Extract zip code from address (simple regex)
-    const zipMatch = address.match(/\b\d{5}\b/);
-    
-    if (!zipMatch) {
+    // Use edge function for real-time validation with Mapbox
+    const { data, error } = await supabase.functions.invoke('validate-delivery-address', {
+      body: { address }
+    });
+
+    if (error) {
+      console.error("Delivery validation error:", error);
       return {
         isValid: false,
-        message: "Please include a valid 5-digit ZIP code in your delivery address."
+        message: "Unable to validate delivery address. Please try again."
       };
     }
 
-    const zipCode = zipMatch[0];
-
-    // Check if zip code is in delivery zone
-    const { data: zone, error } = await supabase
-      .from("delivery_zones")
-      .select("estimated_minutes, is_active")
-      .eq("zip_code", zipCode)
-      .eq("is_active", true)
-      .single();
-
-    if (error || !zone) {
-      return {
-        isValid: false,
-        message: `Sorry, we don't currently deliver to ZIP code ${zipCode}. We only deliver within a 15-minute radius of our restaurant.`
-      };
-    }
-
-    return {
-      isValid: true,
-      estimatedMinutes: zone.estimated_minutes,
-      message: `Estimated delivery time: ${zone.estimated_minutes} minutes`
-    };
+    return data;
   } catch (error) {
     console.error("Delivery validation error:", error);
     return {
