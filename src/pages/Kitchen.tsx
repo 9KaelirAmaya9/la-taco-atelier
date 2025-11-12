@@ -130,22 +130,22 @@ const Kitchen = () => {
   return (
     <ProtectedRoute requiredRole="kitchen">
       <div className="min-h-screen bg-background">
-        {/* Sticky Header */}
+        {/* Sticky Header - Tablet Optimized */}
         <div className="sticky top-0 z-10 bg-background border-b border-border shadow-sm">
-          <div className="max-w-7xl mx-auto p-4">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <ChefHat className="h-8 w-8 md:h-10 md:w-10 text-primary shrink-0" />
+          <div className="max-w-7xl mx-auto p-6 md:p-8">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+              <div className="flex items-center gap-5">
+                <ChefHat className="h-12 w-12 md:h-16 md:w-16 text-primary shrink-0" />
                 <div>
-                  <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold">Kitchen Display</h1>
-                  <p className="text-sm text-muted-foreground">
+                  <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold">Kitchen Display</h1>
+                  <p className="text-xl md:text-2xl text-muted-foreground mt-2">
                     {orders.length} active {orders.length === 1 ? "order" : "orders"}
                   </p>
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-xs text-muted-foreground">Auto-refreshing</p>
-                <p className="text-lg md:text-xl font-bold">
+                <p className="text-base md:text-lg text-muted-foreground">Auto-refreshing</p>
+                <p className="text-2xl md:text-3xl font-bold mt-1">
                   {new Date().toLocaleTimeString()}
                 </p>
               </div>
@@ -153,76 +153,75 @@ const Kitchen = () => {
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto p-4 space-y-6">
+        <div className="max-w-7xl mx-auto p-6 md:p-8 space-y-8">
           <NotificationSettings />
 
           {orders.length === 0 ? (
-            <Card className="p-8 md:p-12 text-center">
-              <Package className="h-12 w-12 md:h-16 md:w-16 mx-auto mb-4 text-muted-foreground" />
-              <h2 className="text-xl md:text-2xl font-semibold mb-2">No Active Orders</h2>
-              <p className="text-sm md:text-base text-muted-foreground">
+            <Card className="p-12 md:p-16 text-center">
+              <Package className="h-20 w-20 md:h-24 md:w-24 mx-auto mb-6 text-muted-foreground" />
+              <h2 className="text-3xl md:text-4xl font-semibold mb-4">No Active Orders</h2>
+              <p className="text-xl md:text-2xl text-muted-foreground">
                 All orders are completed or ready for pickup
               </p>
             </Card>
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
               {orders.map((order) => (
                 <Card
                   key={order.id}
-                  className="border-2 hover:shadow-lg transition-shadow flex flex-col"
+                  className="border-4 hover:shadow-2xl transition-shadow flex flex-col"
                 >
-                  <CardHeader className={`${getStatusColor(order.status)} text-white`}>
+                  <CardHeader className={`${getStatusColor(order.status)} text-white p-6 md:p-8`}>
                     <div className="flex items-start justify-between">
                       <div>
-                        <CardTitle className="text-2xl md:text-3xl font-bold mb-1">
+                        <CardTitle className="text-5xl md:text-6xl font-bold mb-2">
                           {order.order_number.split("-")[2]}
                         </CardTitle>
-                        <p className="text-xs md:text-sm opacity-90 flex items-center gap-1">
-                          <Clock className="h-3 w-3 md:h-4 md:w-4" />
+                        <p className="text-lg md:text-xl opacity-90 flex items-center gap-2">
+                          <Clock className="h-6 w-6 md:h-7 md:w-7" />
                           {getTimeElapsed(order.created_at)} ago
                         </p>
                       </div>
                       <Badge
                         variant="secondary"
-                        className="text-sm md:text-base px-2 md:px-3 py-1 font-semibold bg-white/20"
+                        className="text-xl md:text-2xl px-4 md:px-6 py-2 md:py-3 font-semibold bg-white/20"
                       >
                         {order.order_type}
                       </Badge>
                     </div>
                   </CardHeader>
-                  <CardContent className="p-4 md:p-6 flex-1 flex flex-col">
-                    <div className="mb-4">
-                      <p className="text-xs md:text-sm text-muted-foreground mb-1">Customer</p>
-                      <p className="font-semibold text-base md:text-lg break-words">{order.customer_name}</p>
+                  <CardContent className="p-6 md:p-8 flex-1 flex flex-col">
+                    <div className="mb-6">
+                      <p className="text-lg md:text-xl text-muted-foreground mb-2">Customer</p>
+                      <p className="font-semibold text-2xl md:text-3xl break-words">{order.customer_name}</p>
                     </div>
 
-                    <div className="mb-6 flex-1">
-                      <p className="text-xs md:text-sm text-muted-foreground mb-3 font-semibold">
+                    <div className="mb-8 flex-1">
+                      <p className="text-lg md:text-xl text-muted-foreground mb-4 font-semibold">
                         Items:
                       </p>
-                      <div className="space-y-2">
+                      <div className="space-y-3">
                         {order.items.map((item, idx) => (
                           <div
                             key={idx}
-                            className="flex justify-between items-center bg-muted/50 p-2 md:p-3 rounded-lg gap-2"
+                            className="flex justify-between items-center bg-muted/50 p-4 md:p-5 rounded-xl gap-3"
                           >
-                            <div className="flex items-center gap-2 flex-1 min-w-0">
-                              <span className="font-bold text-base md:text-lg bg-primary text-primary-foreground rounded-full h-6 w-6 md:h-7 md:w-7 flex items-center justify-center shrink-0">
+                            <div className="flex items-center gap-3 flex-1 min-w-0">
+                              <span className="font-bold text-2xl md:text-3xl bg-primary text-primary-foreground rounded-full h-12 w-12 md:h-14 md:w-14 flex items-center justify-center shrink-0">
                                 {item.quantity}
                               </span>
-                              <span className="font-medium text-sm md:text-base break-words">{item.name}</span>
+                              <span className="font-medium text-xl md:text-2xl break-words">{item.name}</span>
                             </div>
                           </div>
                         ))}
                       </div>
                     </div>
 
-                    <div className="space-y-2 mt-auto">
+                    <div className="space-y-4 mt-auto">
                       {order.status === "pending" && (
                         <Button
                           onClick={() => updateStatus(order.id, "preparing")}
-                          className="w-full text-sm md:text-base font-semibold"
-                          size="lg"
+                          className="w-full text-2xl md:text-3xl font-semibold h-16 md:h-20"
                         >
                           Start Preparing
                         </Button>
@@ -230,8 +229,7 @@ const Kitchen = () => {
                       {order.status === "preparing" && (
                         <Button
                           onClick={() => updateStatus(order.id, "ready")}
-                          className="w-full text-sm md:text-base font-semibold"
-                          size="lg"
+                          className="w-full text-2xl md:text-3xl font-semibold h-16 md:h-20"
                         >
                           Mark Ready
                         </Button>
@@ -239,10 +237,9 @@ const Kitchen = () => {
                       <Button
                         variant="outline"
                         onClick={() => handlePrintReceipt(order)}
-                        className="w-full gap-2"
-                        size="sm"
+                        className="w-full gap-3 text-xl md:text-2xl h-14 md:h-16"
                       >
-                        <Printer className="h-3 w-3 md:h-4 md:w-4" />
+                        <Printer className="h-6 w-6 md:h-7 md:w-7" />
                         Print Receipt
                       </Button>
                     </div>
