@@ -20,6 +20,7 @@ import OrderHistory from "./pages/OrderHistory";
 import Logout from "./pages/Logout";
 import Admin from "./pages/Admin";
 import Kitchen from "./pages/Kitchen";
+import KitchenLogin from "./pages/KitchenLogin";
 import Dashboard from "./pages/Dashboard";
 import OrderSuccess from "./pages/OrderSuccess";
 import NotFound from "./pages/NotFound";
@@ -45,6 +46,7 @@ const App = () => (
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/signin" element={<SignIn />} />
                 <Route path="/signup" element={<SignUp />} />
+                <Route path="/kitchen-login" element={<KitchenLogin />} />
                 <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
                 <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                 <Route path="/order-history" element={<OrderHistory />} />
