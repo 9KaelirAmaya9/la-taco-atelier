@@ -1,69 +1,77 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { User } from "@supabase/supabase-js";
+import { User, Session } from "@supabase/supabase-js";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ChefHat, ClipboardList, UserCircle, LogOut, Loader2 } from "lucide-react";
 
 const Dashboard = () => {
   const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [userRoles, setUserRoles] = useState<string[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
     let isMounted = true;
-    
-    const fetchUserAndRoles = async () => {
-      console.log("Dashboard: Starting fetchUserAndRoles");
-      try {
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        console.log("Dashboard: Session result:", { session: !!session, sessionError });
-        
-        if (!isMounted) return;
-        
-        if (sessionError) {
-          console.error("Dashboard: Session error:", sessionError);
-          return;
-        }
-        
-        if (!session) {
-          console.log("Dashboard: No session found. Not navigating; showing sign-in prompt.");
-          setUser(null);
-          return;
-        }
 
-        console.log("Dashboard: Setting user:", session.user.email);
-        setUser(session.user);
+    const fetchRoles = async (userId: string) => {
+      console.log("Dashboard: Fetching roles for user:", userId);
+      const { data: roles, error: rolesError } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId);
 
-        // Fetch user roles
-        console.log("Dashboard: Fetching roles for user:", session.user.id);
-        const { data: roles, error: rolesError } = await supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", session.user.id);
+      console.log("Dashboard: Roles result:", { roles, rolesError });
 
-        console.log("Dashboard: Roles result:", { roles, rolesError });
-        
-        if (!isMounted) return;
+      if (!isMounted) return;
 
-        if (rolesError) {
-          console.error("Dashboard: Roles error:", rolesError);
-        } else if (roles) {
-          const userRolesList = roles.map(r => r.role);
-          console.log("Dashboard: Setting user roles:", userRolesList);
-          setUserRoles(userRolesList);
-        }
-      } catch (error) {
-        console.error("Dashboard: Error fetching user data:", error);
-      } finally {
-        if (isMounted) {
-          console.log("Dashboard: Setting loading to false");
-          setLoading(false);
-        }
+      if (rolesError) {
+        console.error("Dashboard: Roles error:", rolesError);
+      } else if (roles) {
+        const userRolesList = roles.map((r) => r.role);
+        console.log("Dashboard: Setting user roles:", userRolesList);
+        setUserRoles(userRolesList);
       }
     };
+
+    // 1) Listen for auth changes FIRST, then react
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      console.log("Dashboard: onAuthStateChange", { hasSession: !!newSession });
+      if (!isMounted) return;
+
+      setSession(newSession ?? null);
+      setUser(newSession?.user ?? null);
+
+      if (newSession?.user) {
+        // Defer any supabase calls to avoid deadlocks in the callback
+        setTimeout(() => {
+          fetchRoles(newSession.user!.id);
+          setLoading(false);
+        }, 0);
+      } else {
+        setUserRoles([]);
+        setLoading(false);
+      }
+    });
+
+    // 2) Also check current session on mount in case it's already available
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      console.log("Dashboard: getSession resolved:", { hasSession: !!session, error });
+      if (!isMounted) return;
+
+      setSession(session ?? null);
+      setUser(session?.user ?? null);
+
+      if (session?.user) {
+        fetchRoles(session.user.id).finally(() => {
+          if (isMounted) setLoading(false);
+        });
+      } else {
+        setLoading(false);
+      }
+    });
 
     const safety = setTimeout(() => {
       if (isMounted) {
@@ -72,13 +80,12 @@ const Dashboard = () => {
       }
     }, 6000);
 
-    fetchUserAndRoles();
-    
     return () => {
       isMounted = false;
       clearTimeout(safety);
+      subscription.unsubscribe();
     };
-  }, [navigate]);
+  }, []);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
