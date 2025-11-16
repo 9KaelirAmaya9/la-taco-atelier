@@ -36,7 +36,10 @@ const KitchenLogin = () => {
       if (!mounted) return;
       if (session?.user) {
         setLoading(true);
-        setTimeout(() => redirectIfAuthorized(session.user.id), 0);
+        setTimeout(() => {
+          redirectIfAuthorized(session.user.id)
+            .finally(() => mounted && setLoading(false));
+        }, 0);
       }
     });
 
@@ -143,7 +146,6 @@ const KitchenLogin = () => {
                   placeholder="kitchen@restaurant.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  disabled={loading}
                   required
                   autoComplete="email"
                   className="h-12 text-base"
@@ -159,7 +161,6 @@ const KitchenLogin = () => {
                   placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  disabled={loading}
                   required
                   autoComplete="current-password"
                   className="h-12 text-base"
