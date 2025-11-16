@@ -13,6 +13,47 @@ const KitchenLogin = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  // Auto-redirect if already authenticated and has required role
+  useEffect(() => {
+    let mounted = true;
+
+    const redirectIfAuthorized = async (userId: string) => {
+      try {
+        const { data: roles, error } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", userId);
+        if (!mounted) return;
+        if (error) return;
+        const ok = roles?.some((r) => r.role === "kitchen" || r.role === "admin");
+        if (ok) navigate("/kitchen", { replace: true });
+      } catch (_) {
+        // noop
+      }
+    };
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!mounted) return;
+      if (session?.user) {
+        setLoading(true);
+        setTimeout(() => redirectIfAuthorized(session.user.id), 0);
+      }
+    });
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!mounted) return;
+      if (session?.user) {
+        setLoading(true);
+        redirectIfAuthorized(session.user.id).finally(() => mounted && setLoading(false));
+      }
+    });
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, [navigate]);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
