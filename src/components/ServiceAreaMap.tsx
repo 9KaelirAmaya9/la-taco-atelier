@@ -21,8 +21,10 @@ const ServiceAreaMap = ({ validatedAddress }: ServiceAreaMapProps) => {
   const [mapboxToken, setMapboxToken] = useState<string>('');
   const [isLoadingZone, setIsLoadingZone] = useState(true);
   const [zoneError, setZoneError] = useState<string | null>(null);
+  const [mapError, setMapError] = useState<string | null>(null);
   const validatedMarkerRef = useRef<mapboxgl.Marker | null>(null);
   const serviceAreaSourceRef = useRef<string | null>(null);
+  const loadServiceAreaCalledRef = useRef<boolean>(false);
 
   useEffect(() => {
     // Get Mapbox token from environment
@@ -37,16 +39,30 @@ const ServiceAreaMap = ({ validatedAddress }: ServiceAreaMapProps) => {
     if (!mapContainer.current || !mapboxToken || map.current) return;
 
     const restaurantCoords: [number, number] = [-74.0060, 40.6501]; // 505 51st Street, Brooklyn
+    loadServiceAreaCalledRef.current = false;
+    setMapError(null);
 
     // Initialize map with optimal settings to show restaurant and surrounding area
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/streets-v12', // Detailed street map showing neighborhoods
-      center: restaurantCoords,
-      zoom: 12, // Initial zoom - will be adjusted when zone loads
-      pitch: 0, // Flat view for better area visibility
-      bearing: 0, // North-up orientation
-    });
+    try {
+      map.current = new mapboxgl.Map({
+        container: mapContainer.current,
+        style: 'mapbox://styles/mapbox/streets-v12', // Detailed street map showing neighborhoods
+        center: restaurantCoords,
+        zoom: 12, // Initial zoom - will be adjusted when zone loads
+        pitch: 0, // Flat view for better area visibility
+        bearing: 0, // North-up orientation
+      });
+
+      // Handle map errors
+      map.current.on('error', (e: any) => {
+        console.error('Mapbox map error:', e);
+        setMapError(e.error?.message || 'Failed to load map. Please check your Mapbox token.');
+      });
+    } catch (error) {
+      console.error('Failed to initialize map:', error);
+      setMapError(error instanceof Error ? error.message : 'Failed to initialize map');
+      return;
+    }
 
     // Add navigation controls
     map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
@@ -82,7 +98,11 @@ const ServiceAreaMap = ({ validatedAddress }: ServiceAreaMapProps) => {
 
     // Fetch and display 15-minute isochrone (service area)
     const loadServiceArea = async () => {
-      if (!map.current || !mapboxToken) return;
+      // Prevent double execution
+      if (loadServiceAreaCalledRef.current || !map.current || !mapboxToken) {
+        return;
+      }
+      loadServiceAreaCalledRef.current = true;
       
       setIsLoadingZone(true);
       setZoneError(null);
@@ -158,36 +178,69 @@ const ServiceAreaMap = ({ validatedAddress }: ServiceAreaMapProps) => {
         });
 
         // Fit map to show the entire delivery zone plus surrounding area
-        try {
-          const bounds = new mapboxgl.LngLatBounds();
-          
-          // Add all coordinates from the isochrone polygon to bounds
-          data.features.forEach((feature: any) => {
-            if (feature.geometry && feature.geometry.coordinates) {
-              feature.geometry.coordinates.forEach((ring: any) => {
-                ring.forEach((coord: [number, number]) => {
-                  bounds.extend(coord);
+        // Use a function that handles both idle and already-idle cases
+        const fitMapToBounds = () => {
+          try {
+            const bounds = new mapboxgl.LngLatBounds();
+            
+            // Add all coordinates from the isochrone polygon to bounds
+            // Isochrone returns GeoJSON: coordinates = [[[lng, lat], [lng, lat], ...]]
+            data.features.forEach((feature: any) => {
+              if (feature.geometry && feature.geometry.coordinates) {
+                feature.geometry.coordinates.forEach((ring: any) => {
+                  if (Array.isArray(ring)) {
+                    ring.forEach((coord: any) => {
+                      // Validate coordinate format: [lng, lat]
+                      if (Array.isArray(coord) && coord.length >= 2) {
+                        const [lng, lat] = coord;
+                        // Validate coordinate ranges
+                        if (typeof lng === 'number' && typeof lat === 'number' &&
+                            lng >= -180 && lng <= 180 && lat >= -90 && lat <= 90) {
+                          bounds.extend([lng, lat]);
+                        }
+                      }
+                    });
+                  }
                 });
+              }
+            });
+            
+            // Ensure restaurant is in bounds
+            bounds.extend(restaurantCoords);
+            
+            // Check if bounds is valid before fitting
+            if (!bounds.isEmpty()) {
+              // Fit map to bounds with padding to show surrounding area
+              map.current.fitBounds(bounds, {
+                padding: { top: 50, bottom: 50, left: 50, right: 50 },
+                maxZoom: 14, // Don't zoom in too close - keep context
+                duration: 1000, // Smooth animation
               });
+              
+              console.log('✅ Map fitted to show delivery zone and surrounding area');
+            } else {
+              console.warn('Bounds is empty, using default view');
+              map.current.setCenter(restaurantCoords);
+              map.current.setZoom(12);
             }
-          });
-          
-          // Ensure restaurant is in bounds
-          bounds.extend(restaurantCoords);
-          
-          // Fit map to bounds with padding to show surrounding area
-          map.current.fitBounds(bounds, {
-            padding: { top: 50, bottom: 50, left: 50, right: 50 },
-            maxZoom: 14, // Don't zoom in too close - keep context
-            duration: 1000, // Smooth animation
-          });
-          
-          console.log('✅ Map fitted to show delivery zone and surrounding area');
-        } catch (boundsError) {
-          console.warn('Could not fit bounds, using default view:', boundsError);
-          // Fallback: ensure restaurant is visible
-          map.current.setCenter(restaurantCoords);
-          map.current.setZoom(12);
+          } catch (boundsError) {
+            console.warn('Could not fit bounds, using default view:', boundsError);
+            // Fallback: ensure restaurant is visible
+            if (map.current) {
+              map.current.setCenter(restaurantCoords);
+              map.current.setZoom(12);
+            }
+          }
+        };
+
+        // Wait for map to be fully ready before fitting bounds
+        // Handle both cases: map already idle or will become idle
+        if (map.current.loaded() && map.current.isStyleLoaded()) {
+          // Map is already ready, fit bounds immediately
+          fitMapToBounds();
+        } else {
+          // Wait for map to be ready
+          map.current.once('idle', fitMapToBounds);
         }
 
         console.log('✅ 15-minute delivery zone successfully displayed on map');
@@ -235,30 +288,53 @@ const ServiceAreaMap = ({ validatedAddress }: ServiceAreaMapProps) => {
               });
               
               // Fit map to show the entire delivery zone plus surrounding area
-              try {
-                const bounds = new mapboxgl.LngLatBounds();
-                
-                fallbackData.features.forEach((feature: any) => {
-                  if (feature.geometry && feature.geometry.coordinates) {
-                    feature.geometry.coordinates.forEach((ring: any) => {
-                      ring.forEach((coord: [number, number]) => {
-                        bounds.extend(coord);
+              const fitFallbackBounds = () => {
+                try {
+                  const bounds = new mapboxgl.LngLatBounds();
+                  
+                  fallbackData.features.forEach((feature: any) => {
+                    if (feature.geometry && feature.geometry.coordinates) {
+                      feature.geometry.coordinates.forEach((ring: any) => {
+                        if (Array.isArray(ring)) {
+                          ring.forEach((coord: any) => {
+                            if (Array.isArray(coord) && coord.length >= 2) {
+                              const [lng, lat] = coord;
+                              if (typeof lng === 'number' && typeof lat === 'number' &&
+                                  lng >= -180 && lng <= 180 && lat >= -90 && lat <= 90) {
+                                bounds.extend([lng, lat]);
+                              }
+                            }
+                          });
+                        }
                       });
+                    }
+                  });
+                  
+                  bounds.extend(restaurantCoords);
+                  
+                  if (!bounds.isEmpty() && map.current) {
+                    map.current.fitBounds(bounds, {
+                      padding: { top: 50, bottom: 50, left: 50, right: 50 },
+                      maxZoom: 14,
+                      duration: 1000,
                     });
+                  } else if (map.current) {
+                    map.current.setCenter(restaurantCoords);
+                    map.current.setZoom(12);
                   }
-                });
-                
-                bounds.extend(restaurantCoords);
-                
-                map.current.fitBounds(bounds, {
-                  padding: { top: 50, bottom: 50, left: 50, right: 50 },
-                  maxZoom: 14,
-                  duration: 1000,
-                });
-              } catch (boundsError) {
-                console.warn('Could not fit bounds for fallback:', boundsError);
-                map.current.setCenter(restaurantCoords);
-                map.current.setZoom(12);
+                } catch (boundsError) {
+                  console.warn('Could not fit bounds for fallback:', boundsError);
+                  if (map.current) {
+                    map.current.setCenter(restaurantCoords);
+                    map.current.setZoom(12);
+                  }
+                }
+              };
+
+              if (map.current.loaded() && map.current.isStyleLoaded()) {
+                fitFallbackBounds();
+              } else {
+                map.current.once('idle', fitFallbackBounds);
               }
               
               console.log('✅ Fallback isochrone loaded successfully');
@@ -273,11 +349,18 @@ const ServiceAreaMap = ({ validatedAddress }: ServiceAreaMapProps) => {
     };
 
     // Wait for map to load before fetching isochrone
-    map.current.on('load', loadServiceArea);
+    // Use 'load' event which fires when style is loaded
+    const handleMapLoad = () => {
+      if (!loadServiceAreaCalledRef.current) {
+        loadServiceArea();
+      }
+    };
+
+    map.current.on('load', handleMapLoad);
     
-    // Also try loading if map is already loaded
-    if (map.current.loaded()) {
-      loadServiceArea();
+    // If map is already loaded (shouldn't happen, but handle edge case)
+    if (map.current.loaded() && map.current.isStyleLoaded()) {
+      handleMapLoad();
     }
 
     return () => {
@@ -362,6 +445,24 @@ const ServiceAreaMap = ({ validatedAddress }: ServiceAreaMapProps) => {
           <MapPin className="h-5 w-5" />
           <p>Map loading...</p>
         </div>
+        <p className="text-xs text-muted-foreground mt-2">
+          Waiting for Mapbox token...
+        </p>
+      </Card>
+    );
+  }
+
+  if (mapError) {
+    return (
+      <Card className="p-6">
+        <div className="flex items-center gap-2 text-destructive">
+          <MapPin className="h-5 w-5" />
+          <p className="font-semibold">Map Error</p>
+        </div>
+        <p className="text-sm text-muted-foreground mt-2">{mapError}</p>
+        <p className="text-xs text-muted-foreground mt-1">
+          Please check your Mapbox token configuration.
+        </p>
       </Card>
     );
   }
