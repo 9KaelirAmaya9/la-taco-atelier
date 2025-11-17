@@ -165,8 +165,6 @@ const Cart = () => {
           subtotal,
           tax,
           total: total, // Include delivery fee in total
-          coupon_code: appliedCoupon?.code || null,
-          discount_amount: discountAmount,
           notes: validation.data.notes || null,
           status: "pending",
         }], { returning: 'minimal' } as any);
