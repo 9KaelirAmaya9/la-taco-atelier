@@ -187,13 +187,23 @@ const Cart = () => {
       console.log(`Totals calculated in ${Date.now() - overallStartTime}ms`);
 
       // Get current user if authenticated
-      console.log("=== STEP 2: Getting session ===");
-      const sessionStartTime = Date.now();
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      if (sessionError) {
-        console.warn("Session error (non-critical):", sessionError);
-      }
-      console.log(`Session retrieved in ${Date.now() - sessionStartTime}ms`);
+console.log("=== STEP 2: Getting session (non-blocking) ===");
+const sessionStartTime = Date.now();
+let session: any = null;
+try {
+  const sessionResult = await Promise.race([
+    supabase.auth.getSession(),
+    new Promise((resolve) => setTimeout(() => resolve({ data: { session: null }, error: null }), 2000)),
+  ]) as any;
+  if (sessionResult?.error) {
+    console.warn("Session error (non-critical):", sessionResult.error);
+  }
+  session = sessionResult?.data?.session ?? null;
+} catch (e) {
+  console.warn("Session retrieval failed (non-critical):", e);
+} finally {
+  console.log(`Session step finished in ${Date.now() - sessionStartTime}ms`);
+}
       
       // Generate order number on client to avoid needing SELECT permissions
       const orderNumber = `ORD-${new Date().toISOString().slice(0,10).replace(/-/g,'')}-${Math.floor(1000 + Math.random() * 9000)}`;
