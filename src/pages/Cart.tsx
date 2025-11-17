@@ -205,8 +205,9 @@ const Cart = () => {
       });
       
       // Add timeout to order creation to prevent hanging
-      // Database inserts are typically fast (0.5-2s), but we allow 5s for slow networks
+      // Database inserts are typically fast (0.5-2s), but we allow 8s for slow networks and connection issues
       console.log("Inserting order into database...");
+      const orderStartTime = Date.now();
       const orderInsertPromise = supabase
         .from("orders")
         .insert([{
@@ -228,7 +229,10 @@ const Cart = () => {
         }], { returning: 'minimal' } as any);
 
       const orderTimeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error("Order creation timed out after 5 seconds")), 5000)
+        setTimeout(() => {
+          const elapsed = Date.now() - orderStartTime;
+          reject(new Error(`Order creation timed out after 8 seconds (elapsed: ${elapsed}ms)`));
+        }, 8000)
       );
 
       const { data: orderData, error: orderError } = await Promise.race([
@@ -237,11 +241,14 @@ const Cart = () => {
       ]) as any;
 
       if (orderError) {
+        const elapsed = Date.now() - orderStartTime;
         console.error("Order creation error:", orderError);
+        console.error(`Order creation took ${elapsed}ms before failing`);
         throw new Error(`Failed to create order: ${orderError.message || JSON.stringify(orderError)}`);
       }
       
-      console.log("Order created successfully:", orderNumber);
+      const orderElapsed = Date.now() - orderStartTime;
+      console.log(`Order created successfully in ${orderElapsed}ms:`, orderNumber);
 
       // Send push notification to kitchen staff and admins (non-blocking)
       // Only send if user is authenticated (notification function requires auth)
@@ -279,7 +286,8 @@ const Cart = () => {
       console.log("Payment items:", paymentItems);
       
       // Add timeout to payment intent creation to prevent hanging
-      // Stripe API + edge function typically takes 1-4s, but we allow 8s for cold starts and slow networks
+      // Stripe API + edge function typically takes 1-4s, but we allow 12s for cold starts, slow networks, and Stripe API delays
+      const paymentStartTime = Date.now();
       const paymentIntentPromise = supabase.functions.invoke(
         'create-payment-intent',
         {
@@ -295,7 +303,10 @@ const Cart = () => {
       );
 
       const paymentTimeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error("Payment intent creation timed out after 8 seconds")), 8000)
+        setTimeout(() => {
+          const elapsed = Date.now() - paymentStartTime;
+          reject(new Error(`Payment intent creation timed out after 12 seconds (elapsed: ${elapsed}ms)`));
+        }, 12000)
       );
 
       const { data: piData, error: piError } = await Promise.race([
@@ -304,10 +315,12 @@ const Cart = () => {
       ]) as any;
 
       if (piError) {
+        const elapsed = Date.now() - paymentStartTime;
         console.error("Payment intent error details:", {
           error: piError,
           message: piError.message,
           error_code: piError.error,
+          elapsed_ms: elapsed,
           full_error: JSON.stringify(piError, null, 2)
         });
         // Show the actual error message if available
@@ -315,7 +328,8 @@ const Cart = () => {
         throw new Error(`Payment error: ${errorMessage}`);
       }
 
-      console.log("Payment intent response:", {
+      const paymentElapsed = Date.now() - paymentStartTime;
+      console.log(`Payment intent created in ${paymentElapsed}ms:`, {
         hasClientSecret: !!piData?.clientSecret,
         hasPublishableKey: !!piData?.publishableKey,
         data: piData
@@ -355,9 +369,15 @@ const Cart = () => {
         errorMessage = error;
       }
       
-      // Check if it's a timeout error
+      // Check if it's a timeout error and provide more helpful message
       if (errorMessage.includes("timed out")) {
-        errorMessage = "Request timed out. Please check your internet connection and try again.";
+        if (errorMessage.includes("Order creation")) {
+          errorMessage = "Order creation is taking longer than expected. Please check your connection and try again.";
+        } else if (errorMessage.includes("Payment intent")) {
+          errorMessage = "Payment processing is taking longer than expected. Please check your connection and try again.";
+        } else {
+          errorMessage = "Request timed out. Please check your internet connection and try again.";
+        }
       }
       
       toast.error(errorMessage, {

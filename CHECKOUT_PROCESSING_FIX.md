@@ -105,9 +105,11 @@ await Promise.race([
 
 | Operation | Timeout | Reason |
 |----------|---------|--------|
-| Order Creation | 10 seconds | Database operations should be fast |
-| Payment Intent | 15 seconds | Stripe API can be slower |
-| Overall Guest Checkout | 30 seconds | Total safety net |
+| Order Creation | **5 seconds** | Database inserts are typically fast (0.5-2s), 5s allows for slow networks |
+| Payment Intent | **8 seconds** | Stripe API + edge function typically takes 1-4s, 8s accounts for cold starts |
+| Overall Guest Checkout | **15 seconds** | Total safety net (5s + 8s + 2s buffer) |
+
+**Note:** These values were optimized for faster error feedback while still being safe for slower network conditions.
 
 ---
 
