@@ -39,10 +39,10 @@ Deno.serve(async (req) => {
       );
     }
 
-    const MAPBOX_TOKEN = Deno.env.get('MAPBOX_PUBLIC_TOKEN');
+    const MAPBOX_TOKEN = Deno.env.get('MAPBOX_SECRET_KEY');
     
     if (!MAPBOX_TOKEN) {
-      console.error('MAPBOX_PUBLIC_TOKEN not configured');
+      console.error('MAPBOX_SECRET_KEY not configured');
       return new Response(
         JSON.stringify({ 
           isValid: false, 
