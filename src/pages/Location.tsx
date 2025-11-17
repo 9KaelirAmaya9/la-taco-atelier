@@ -3,20 +3,10 @@ import { Card } from "@/components/ui/card";
 import { MapPin, Clock, Phone } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import logo from "@/assets/logo-illustration.png";
-import ServiceAreaMap from "@/components/ServiceAreaMap";
 import DeliveryAddressValidator from "@/components/DeliveryAddressValidator";
-import { useState } from "react";
-
-interface ValidatedAddress {
-  address: string;
-  coordinates?: [number, number];
-  isValid: boolean;
-  estimatedMinutes?: number;
-}
 
 const Location = () => {
   const { t } = useLanguage();
-  const [validatedAddress, setValidatedAddress] = useState<ValidatedAddress | null>(null);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
@@ -34,7 +24,7 @@ const Location = () => {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto mb-8">
+          <div className="max-w-4xl mx-auto mb-8">
             {/* Location Info */}
             <Card className="p-8">
               <div className="flex items-center gap-3 mb-6">
@@ -87,16 +77,11 @@ const Location = () => {
                 </div>
               </div>
             </Card>
-
-            {/* Service Area Map */}
-            <div>
-              <ServiceAreaMap validatedAddress={validatedAddress} />
-            </div>
           </div>
 
           {/* Delivery Address Validator */}
-          <div className="max-w-6xl mx-auto mb-16">
-            <DeliveryAddressValidator onValidationComplete={setValidatedAddress} />
+          <div className="max-w-4xl mx-auto mb-8">
+            <DeliveryAddressValidator />
           </div>
 
           {/* Services */}
