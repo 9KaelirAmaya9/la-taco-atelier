@@ -41,23 +41,65 @@ export const CheckoutAuthOptions = ({ onContinueAsGuest, onAuthSuccess }: Checko
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate password length
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      const { error } = await supabase.auth.signUp({
-        email,
+      const { data, error } = await supabase.auth.signUp({
+        email: email.trim(),
         password,
         options: {
           emailRedirectTo: `${window.location.origin}/cart`,
         },
       });
 
-      if (error) throw error;
-      
-      toast.success("Account created successfully!");
-      onAuthSuccess();
+      if (error) {
+        console.error("Sign up error:", error);
+        // Show specific error messages
+        if (error.message.includes("already registered")) {
+          toast.error("This email is already registered. Please sign in instead.");
+        } else if (error.message.includes("password")) {
+          toast.error("Password is too weak. Please use a stronger password.");
+        } else if (error.message.includes("email")) {
+          toast.error("Invalid email address. Please check and try again.");
+        } else {
+          toast.error(error.message || "Failed to create account. Please try again.");
+        }
+        return;
+      }
+
+      // Check if email confirmation is required
+      if (data.user && !data.session) {
+        // Email confirmation required - allow guest checkout
+        toast.warning("Account created! Please check your email to confirm. You can continue as guest for now.", {
+          duration: 6000,
+        });
+        // Continue as guest since email confirmation is pending
+        onContinueAsGuest();
+      } else if (data.session) {
+        // No email confirmation required - user is automatically signed in
+        toast.success("Account created successfully!");
+        onAuthSuccess();
+      } else {
+        toast.error("Something went wrong. Please try again or continue as guest.");
+        onContinueAsGuest();
+      }
     } catch (error: any) {
-      toast.error(error.message || "Failed to sign up");
+      console.error("Sign up exception:", error);
+      toast.error(error?.message || "Failed to create account. Please try again or continue as guest.");
     } finally {
       setIsLoading(false);
     }
