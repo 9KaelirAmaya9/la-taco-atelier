@@ -1,20 +1,95 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { MapPin, CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import { validateDeliveryAddress } from '@/utils/deliveryValidation';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { supabase } from '@/integrations/supabase/client';
+
+interface AddressSuggestion {
+  address: string;
+  coordinates: [number, number];
+}
 
 const DeliveryAddressValidator = () => {
   const { t } = useLanguage();
   const [address, setAddress] = useState('');
   const [validating, setValidating] = useState(false);
+  const [suggestions, setSuggestions] = useState<AddressSuggestion[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+  const suggestionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const [result, setResult] = useState<{
     isValid: boolean;
     message: string;
     estimatedMinutes?: number;
   } | null>(null);
+
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Fetch autocomplete suggestions
+  const fetchSuggestions = async (query: string) => {
+    if (query.trim().length < 3) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    setLoadingSuggestions(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('geocode-autocomplete', {
+        body: { query },
+      });
+
+      if (error) {
+        console.error('Autocomplete error:', error);
+        setSuggestions([]);
+      } else {
+        setSuggestions(data?.suggestions || []);
+        setShowSuggestions((data?.suggestions || []).length > 0);
+      }
+    } catch (error) {
+      console.error('Autocomplete error:', error);
+      setSuggestions([]);
+    } finally {
+      setLoadingSuggestions(false);
+    }
+  };
+
+  // Debounced address input
+  const handleAddressChange = (value: string) => {
+    setAddress(value);
+    setResult(null);
+
+    // Clear previous timeout
+    if (suggestionTimeoutRef.current) {
+      clearTimeout(suggestionTimeoutRef.current);
+    }
+
+    // Set new timeout for fetching suggestions
+    suggestionTimeoutRef.current = setTimeout(() => {
+      fetchSuggestions(value);
+    }, 300);
+  };
+
+  // Handle suggestion selection
+  const handleSuggestionClick = (suggestion: AddressSuggestion) => {
+    setAddress(suggestion.address);
+    setShowSuggestions(false);
+    setSuggestions([]);
+  };
 
   const handleValidate = async () => {
     if (!address.trim()) return;
@@ -58,16 +133,43 @@ const DeliveryAddressValidator = () => {
         {t("location.checkDeliverySubtext")}
       </p>
 
-      <div className="flex gap-2 mb-4">
-        <Input
-          type="text"
-          placeholder="Enter your delivery address..."
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-          onKeyPress={handleKeyPress}
-          disabled={validating}
-          className="flex-1"
-        />
+      <div className="flex gap-2 mb-4" ref={wrapperRef}>
+        <div className="flex-1 relative">
+          <Input
+            type="text"
+            placeholder="Enter your delivery address..."
+            value={address}
+            onChange={(e) => handleAddressChange(e.target.value)}
+            onKeyPress={handleKeyPress}
+            onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+            disabled={validating}
+          />
+          
+          {/* Autocomplete suggestions dropdown */}
+          {showSuggestions && suggestions.length > 0 && (
+            <div className="absolute z-10 w-full mt-1 bg-background border border-border rounded-lg shadow-lg max-h-60 overflow-y-auto">
+              {suggestions.map((suggestion, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  onClick={() => handleSuggestionClick(suggestion)}
+                  className="w-full px-4 py-3 text-left hover:bg-muted transition-colors flex items-start gap-2 border-b border-border last:border-b-0"
+                >
+                  <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                  <span className="text-sm">{suggestion.address}</span>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Loading indicator for suggestions */}
+          {loadingSuggestions && (
+            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+            </div>
+          )}
+        </div>
+        
         <Button 
           onClick={handleValidate} 
           disabled={validating || !address.trim()}

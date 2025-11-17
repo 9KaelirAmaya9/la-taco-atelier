@@ -27,3 +27,7 @@ verify_jwt = false
 [functions.validate-coupon]
 verify_jwt = false
 # Public function - no auth required for coupon validation
+
+[functions.geocode-autocomplete]
+verify_jwt = false
+# Public function - no auth required for address autocomplete
