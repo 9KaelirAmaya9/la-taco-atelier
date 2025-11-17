@@ -4,6 +4,7 @@ import { MapPin, Clock, Phone } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import logo from "@/assets/logo-illustration.png";
 import ServiceAreaMap from "@/components/ServiceAreaMap";
+import DeliveryAddressValidator from "@/components/DeliveryAddressValidator";
 
 const Location = () => {
   const { t } = useLanguage();
@@ -24,7 +25,7 @@ const Location = () => {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto mb-8">
             {/* Location Info */}
             <Card className="p-8">
               <div className="flex items-center gap-3 mb-6">
@@ -82,6 +83,11 @@ const Location = () => {
             <div>
               <ServiceAreaMap />
             </div>
+          </div>
+
+          {/* Delivery Address Validator */}
+          <div className="max-w-6xl mx-auto mb-16">
+            <DeliveryAddressValidator />
           </div>
 
           {/* Services */}
