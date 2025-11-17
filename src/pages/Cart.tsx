@@ -84,11 +84,11 @@ const Cart = () => {
 
     if (isProcessing) return;
 
-    // Input validation schema
+    // Input validation schema - name, phone, and email are REQUIRED
     const orderSchema = z.object({
-      name: z.string().trim().max(100, "Name is too long").optional().or(z.literal("")),
-      phone: z.string().trim().max(20, "Phone number is too long").optional().or(z.literal("")),
-      email: z.string().trim().max(255, "Email is too long").optional().or(z.literal("")),
+      name: z.string().trim().min(2, "Name must be at least 2 characters").max(100, "Name is too long"),
+      phone: z.string().trim().min(10, "Phone number must be at least 10 digits").max(20, "Phone number is too long"),
+      email: z.string().trim().email("Please enter a valid email address").max(255, "Email is too long"),
       address: z.string().trim().max(500, "Address is too long").optional().or(z.literal("")),
       notes: z.string().trim().max(1000, "Notes are too long").optional().or(z.literal("")),
     });
@@ -98,7 +98,11 @@ const Cart = () => {
     
     if (!validation.success) {
       const firstError = validation.error.errors[0];
-      toast.error(firstError.message);
+      toast.error(firstError.message, {
+        duration: 5000,
+      });
+      // Scroll to the form to show the error
+      document.getElementById('name')?.focus();
       return;
     }
 
@@ -371,7 +375,12 @@ const Cart = () => {
                           value={customerInfo.name}
                           onChange={(e) => setCustomerInfo({ ...customerInfo, name: e.target.value })}
                           placeholder="Your full name"
+                          required
+                          className={customerInfo.name.length > 0 && customerInfo.name.length < 2 ? "border-destructive" : ""}
                         />
+                        {customerInfo.name.length > 0 && customerInfo.name.length < 2 && (
+                          <p className="text-xs text-destructive mt-1">Name must be at least 2 characters</p>
+                        )}
                       </div>
 
                       <div>
@@ -382,7 +391,12 @@ const Cart = () => {
                           value={customerInfo.phone}
                           onChange={(e) => setCustomerInfo({ ...customerInfo, phone: e.target.value })}
                           placeholder="(555) 123-4567"
+                          required
+                          className={customerInfo.phone.length > 0 && customerInfo.phone.length < 10 ? "border-destructive" : ""}
                         />
+                        {customerInfo.phone.length > 0 && customerInfo.phone.length < 10 && (
+                          <p className="text-xs text-destructive mt-1">Phone must be at least 10 digits</p>
+                        )}
                       </div>
 
                       <div>
@@ -393,7 +407,12 @@ const Cart = () => {
                           value={customerInfo.email}
                           onChange={(e) => setCustomerInfo({ ...customerInfo, email: e.target.value })}
                           placeholder="your@email.com (for order confirmation)"
+                          required
+                          className={customerInfo.email.length > 0 && !customerInfo.email.includes('@') ? "border-destructive" : ""}
                         />
+                        {customerInfo.email.length > 0 && !customerInfo.email.includes('@') && (
+                          <p className="text-xs text-destructive mt-1">Please enter a valid email address</p>
+                        )}
                       </div>
 
                       {orderType === "delivery" && (
@@ -529,7 +548,30 @@ const Cart = () => {
                         <Button 
                           className="w-full" 
                           size="lg"
-                          onClick={() => setShowAuthOptions(true)}
+                          onClick={() => {
+                            // Quick validation before showing auth options
+                            if (!customerInfo.name.trim() || customerInfo.name.trim().length < 2) {
+                              toast.error("Please enter your name (at least 2 characters)");
+                              document.getElementById('name')?.focus();
+                              return;
+                            }
+                            if (!customerInfo.phone.trim() || customerInfo.phone.trim().length < 10) {
+                              toast.error("Please enter a valid phone number (at least 10 digits)");
+                              document.getElementById('phone')?.focus();
+                              return;
+                            }
+                            if (!customerInfo.email.trim() || !customerInfo.email.includes('@')) {
+                              toast.error("Please enter a valid email address");
+                              document.getElementById('email')?.focus();
+                              return;
+                            }
+                            if (orderType === "delivery" && !customerInfo.address.trim()) {
+                              toast.error("Please enter a delivery address");
+                              document.getElementById('address')?.focus();
+                              return;
+                            }
+                            setShowAuthOptions(true);
+                          }}
                           disabled={cart.length === 0}
                         >
                           <CreditCard className="mr-2 h-4 w-4" />
