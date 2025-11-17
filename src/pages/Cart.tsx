@@ -205,6 +205,7 @@ const Cart = () => {
       });
       
       // Add timeout to order creation to prevent hanging
+      // Database inserts are typically fast (0.5-2s), but we allow 5s for slow networks
       console.log("Inserting order into database...");
       const orderInsertPromise = supabase
         .from("orders")
@@ -227,7 +228,7 @@ const Cart = () => {
         }], { returning: 'minimal' } as any);
 
       const orderTimeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error("Order creation timed out after 10 seconds")), 10000)
+        setTimeout(() => reject(new Error("Order creation timed out after 5 seconds")), 5000)
       );
 
       const { data: orderData, error: orderError } = await Promise.race([
@@ -278,6 +279,7 @@ const Cart = () => {
       console.log("Payment items:", paymentItems);
       
       // Add timeout to payment intent creation to prevent hanging
+      // Stripe API + edge function typically takes 1-4s, but we allow 8s for cold starts and slow networks
       const paymentIntentPromise = supabase.functions.invoke(
         'create-payment-intent',
         {
@@ -293,7 +295,7 @@ const Cart = () => {
       );
 
       const paymentTimeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error("Payment intent creation timed out after 15 seconds")), 15000)
+        setTimeout(() => reject(new Error("Payment intent creation timed out after 8 seconds")), 8000)
       );
 
       const { data: piData, error: piError } = await Promise.race([

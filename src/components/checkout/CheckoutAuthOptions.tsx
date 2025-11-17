@@ -214,8 +214,9 @@ export const CheckoutAuthOptions = ({ onContinueAsGuest, onAuthSuccess }: Checko
                 setIsGuestLoading(true);
                 try {
                   // Add timeout wrapper to prevent infinite loading
+                  // Total timeout: 15s (covers order creation 5s + payment intent 8s + 2s buffer)
                   const timeoutPromise = new Promise((_, reject) => 
-                    setTimeout(() => reject(new Error("Checkout process timed out")), 30000)
+                    setTimeout(() => reject(new Error("Checkout process timed out")), 15000)
                   );
                   
                   await Promise.race([
