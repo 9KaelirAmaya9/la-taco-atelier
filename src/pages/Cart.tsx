@@ -190,23 +190,28 @@ const Cart = () => {
       
       console.log("Order created successfully:", orderNumber);
 
-      // Send push notification to kitchen staff and admins
-      try {
-        await supabase.functions.invoke('send-push-notification', {
-          body: {
-            title: 'New Order Received!',
-            body: `Order #${orderNumber} - ${cart.length} items - $${total.toFixed(2)}`,
-            data: {
-              orderId: orderNumber,
-              orderNumber: orderNumber,
-              url: '/kitchen'
-            },
-            targetRoles: ['admin', 'kitchen']
-          }
-        });
-      } catch (notifError) {
-        console.error('Failed to send push notification:', notifError);
-        // Don't fail the order if notification fails
+      // Send push notification to kitchen staff and admins (non-blocking)
+      // Only send if user is authenticated (notification function requires auth)
+      if (session?.user?.id) {
+        try {
+          await supabase.functions.invoke('send-push-notification', {
+            body: {
+              title: 'New Order Received!',
+              body: `Order #${orderNumber} - ${cart.length} items - $${total.toFixed(2)}`,
+              data: {
+                orderId: orderNumber,
+                orderNumber: orderNumber,
+                url: '/kitchen'
+              },
+              targetRoles: ['admin', 'kitchen']
+            }
+          });
+        } catch (notifError) {
+          console.warn('Failed to send push notification (non-critical):', notifError);
+          // Don't fail the order if notification fails
+        }
+      } else {
+        console.log("Skipping push notification for guest order");
       }
 
       // Create PaymentIntent for secure modal checkout
