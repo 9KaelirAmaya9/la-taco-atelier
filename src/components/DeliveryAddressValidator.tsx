@@ -50,10 +50,25 @@ const DeliveryAddressValidator = ({
 
   // Initialize Mapbox token
   useEffect(() => {
-    const token = import.meta.env.VITE_MAPBOX_PUBLIC_TOKEN;
-    if (token) {
-      mapboxgl.accessToken = token;
-    }
+    const fetchToken = async () => {
+      console.log('🔄 DeliveryAddressValidator: Fetching Mapbox token for autocomplete map...');
+      try {
+        const { data, error } = await supabase.functions.invoke('get-mapbox-token');
+        if (error) {
+          console.error('❌ DeliveryAddressValidator: Error fetching token:', error);
+          return;
+        }
+        if (data?.token) {
+          mapboxgl.accessToken = data.token;
+          console.log('✅ DeliveryAddressValidator: Mapbox token configured');
+        } else {
+          console.error('❌ DeliveryAddressValidator: No token in response');
+        }
+      } catch (error) {
+        console.error('❌ DeliveryAddressValidator: Error loading Mapbox token:', error);
+      }
+    };
+    fetchToken();
   }, []);
 
   // Close suggestions when clicking outside
@@ -68,7 +83,7 @@ const DeliveryAddressValidator = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Fetch autocomplete suggestions
+  // Fetch autocomplete suggestions with timeout
   const fetchSuggestions = async (query: string) => {
     if (query.trim().length < 3) {
       setSuggestions([]);
@@ -77,24 +92,34 @@ const DeliveryAddressValidator = ({
       return;
     }
 
+    console.log('🔍 DeliveryAddressValidator: Fetching suggestions for:', query);
     setLoadingSuggestions(true);
     setAutocompleteError(null);
+    
     try {
-      const { data, error } = await supabase.functions.invoke('geocode-autocomplete', {
+      // Add timeout to autocomplete call
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('Autocomplete timeout')), 10000);
+      });
+
+      const autocompletePromise = supabase.functions.invoke('geocode-autocomplete', {
         body: { query },
       });
 
+      const { data, error } = await Promise.race([autocompletePromise, timeoutPromise]) as any;
+
       if (error) {
-        console.error('Autocomplete error:', error);
+        console.error('❌ DeliveryAddressValidator: Autocomplete error:', error);
         setAutocompleteError('Unable to load address suggestions. Please type your full address.');
         setSuggestions([]);
         setShowSuggestions(false);
       } else {
+        console.log('✅ DeliveryAddressValidator: Received', data?.suggestions?.length || 0, 'suggestions');
         setSuggestions(data?.suggestions || []);
         setShowSuggestions((data?.suggestions || []).length > 0);
       }
     } catch (error) {
-      console.error('Autocomplete error:', error);
+      console.error('❌ DeliveryAddressValidator: Network error:', error);
       setAutocompleteError('Network error. Please check your connection and try again.');
       setSuggestions([]);
       setShowSuggestions(false);
@@ -202,11 +227,15 @@ const DeliveryAddressValidator = ({
   const handleValidate = async () => {
     if (!address.trim()) return;
 
+    console.log('🔍 DeliveryAddressValidator: Validating address:', address);
     setValidating(true);
     setResult(null);
+    setShowSuggestions(false);
 
     try {
       const validationResult = await validateDeliveryAddress(address);
+      console.log('✅ DeliveryAddressValidator: Validation result:', validationResult);
+      
       const result = {
         isValid: validationResult.isValid,
         message: validationResult.message || '',
@@ -223,6 +252,7 @@ const DeliveryAddressValidator = ({
         });
       }
     } catch (error) {
+      console.error('❌ DeliveryAddressValidator: Validation exception:', error);
       setResult({
         isValid: false,
         message: 'Unable to validate address. Please try again.',
@@ -264,33 +294,44 @@ const DeliveryAddressValidator = ({
           />
           
           {/* Autocomplete suggestions dropdown with map preview */}
-          {showSuggestions && suggestions.length > 0 && (
+          {showSuggestions && !validating && (
             <div className="absolute z-50 w-full mt-1 flex gap-2">
-              {/* Suggestions list */}
-              <div className="flex-1 bg-card border border-border rounded-lg shadow-xl max-h-60 overflow-y-auto backdrop-blur-sm">
-                {suggestions.map((suggestion, index) => (
-                  <button
-                    key={index}
-                    type="button"
-                    onClick={() => handleSuggestionClick(suggestion)}
-                    onMouseEnter={() => setHoveredIndex(index)}
-                    onMouseLeave={() => setHoveredIndex(null)}
-                    className={`w-full px-4 py-3 text-left transition-colors flex items-start gap-2 border-b border-border last:border-b-0 ${
-                      hoveredIndex === index ? 'bg-muted' : 'hover:bg-muted/50'
-                    }`}
-                  >
-                    <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                    <span className="text-sm text-foreground">{suggestion.address}</span>
-                  </button>
-                ))}
-              </div>
-              
-              {/* Map preview - hidden on mobile, shown on larger screens */}
-              {hoveredIndex !== null && (
-                <div className="hidden lg:block w-64 h-60 bg-card border border-border rounded-lg shadow-xl overflow-hidden backdrop-blur-sm">
-                  <div ref={mapContainerRef} className="w-full h-full" />
+              {loadingSuggestions ? (
+                <div className="flex-1 bg-card border border-border rounded-lg shadow-xl p-4 backdrop-blur-sm">
+                  <div className="flex items-center justify-center gap-2 text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span className="text-sm">Loading suggestions...</span>
+                  </div>
                 </div>
-              )}
+              ) : suggestions.length > 0 ? (
+                <>
+                  {/* Suggestions list */}
+                  <div className="flex-1 bg-card border border-border rounded-lg shadow-xl max-h-60 overflow-y-auto backdrop-blur-sm">
+                    {suggestions.map((suggestion, index) => (
+                      <button
+                        key={index}
+                        type="button"
+                        onClick={() => handleSuggestionClick(suggestion)}
+                        onMouseEnter={() => setHoveredIndex(index)}
+                        onMouseLeave={() => setHoveredIndex(null)}
+                        className={`w-full px-4 py-3 text-left transition-colors flex items-start gap-2 border-b border-border last:border-b-0 ${
+                          hoveredIndex === index ? 'bg-muted' : 'hover:bg-muted/50'
+                        }`}
+                      >
+                        <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                        <span className="text-sm text-foreground">{suggestion.address}</span>
+                      </button>
+                    ))}
+                  </div>
+                  
+                  {/* Map preview - hidden on mobile, shown on larger screens */}
+                  {hoveredIndex !== null && (
+                    <div className="hidden lg:block w-64 h-60 bg-card border border-border rounded-lg shadow-xl overflow-hidden backdrop-blur-sm">
+                      <div ref={mapContainerRef} className="w-full h-full" />
+                    </div>
+                  )}
+                </>
+              ) : null}
             </div>
           )}
           

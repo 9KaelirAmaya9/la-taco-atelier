@@ -3,20 +3,10 @@ import { Card } from "@/components/ui/card";
 import { MapPin, Clock, Phone } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import logo from "@/assets/logo-illustration.png";
-import ServiceAreaMap from "@/components/ServiceAreaMap";
 import DeliveryAddressValidator from "@/components/DeliveryAddressValidator";
-import { useState } from "react";
-
-interface ValidatedAddress {
-  address: string;
-  coordinates?: [number, number];
-  isValid: boolean;
-  estimatedMinutes?: number;
-}
 
 const Location = () => {
   const { t } = useLanguage();
-  const [validatedAddress, setValidatedAddress] = useState<ValidatedAddress | null>(null);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
@@ -88,15 +78,24 @@ const Location = () => {
               </div>
             </Card>
 
-            {/* Service Area Map */}
-            <div>
-              <ServiceAreaMap validatedAddress={validatedAddress} />
+            {/* Google Maps */}
+            <div className="h-full min-h-[400px]">
+              <iframe
+                title="Ricos Tacos Location"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3027.4268743583893!2d-74.00884492346602!3d40.65008797139283!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c25af4e3f6d5b5%3A0x1234567890abcdef!2s505%2051st%20St%2C%20Brooklyn%2C%20NY%2011220!5e0!3m2!1sen!2sus!4v1234567890123!5m2!1sen!2sus"
+                width="100%"
+                height="100%"
+                style={{ border: 0, borderRadius: '0.5rem' }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              />
             </div>
           </div>
 
           {/* Delivery Address Validator */}
-          <div className="max-w-6xl mx-auto mb-16">
-            <DeliveryAddressValidator onValidationComplete={setValidatedAddress} />
+          <div className="max-w-4xl mx-auto mb-8">
+            <DeliveryAddressValidator />
           </div>
 
           {/* Services */}
