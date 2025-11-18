@@ -216,7 +216,7 @@ const OrderSuccess = () => {
                     <p>✓ Estimated pickup time: 20-30 minutes</p>
                   </>
                 )}
-                <p className="pt-2">Need help? Call us at (718) 555-TACO</p>
+                <p className="pt-2">Need help? Call us at (718) 633-4816</p>
               </div>
             </Card>
 
