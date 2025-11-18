@@ -22,7 +22,7 @@ export const validateDeliveryAddress = async (address: string): Promise<Delivery
     
     // Create a timeout promise
     const timeoutPromise = new Promise<never>((_, reject) => {
-      setTimeout(() => reject(new Error('Validation timeout')), 30000); // 30 second timeout
+      setTimeout(() => reject(new Error('Validation timeout')), 30000);
     });
 
     // Race between the actual call and the timeout
