@@ -143,39 +143,24 @@ const Cart = () => {
     }
 
     // Validate delivery zone with Google Maps (non-blocking for guest checkout)
+    // Make delivery validation completely non-blocking - never return early
     if (orderType === "delivery") {
       // Use Google Maps validation if place_id is available, otherwise fallback to text validation
       if (selectedPlace?.place_id) {
         console.log("🔍 Cart: Validating delivery address with Google Maps place_id:", selectedPlace.place_id);
         console.log("🔍 Cart: Formatted address:", selectedPlace.formatted_address);
-        try {
-          // Increased timeout to 25 seconds to match the utility function timeout (20s) plus buffer
-          const validationPromise = validateDeliveryAddressGoogle(
-            selectedPlace.place_id,
-            selectedPlace.formatted_address
-          );
-          const timeoutPromise = new Promise<never>((_, reject) => 
-            setTimeout(() => reject(new Error("Delivery validation timeout")), 25000)
-          );
-          
-          const deliveryValidation = await Promise.race([validationPromise, timeoutPromise]);
+        
+        // Run validation in background - don't await, just fire and forget
+        validateDeliveryAddressGoogle(
+          selectedPlace.place_id,
+          selectedPlace.formatted_address
+        ).then((deliveryValidation) => {
           console.log("✅ Cart: Google Maps delivery validation result:", deliveryValidation);
-          console.log("✅ Cart: Validation isValid:", deliveryValidation?.isValid);
-          console.log("✅ Cart: Validation message:", deliveryValidation?.message);
           
-          // Check if validation timed out (returns error result with timeout message)
+          // Only show error if explicitly invalid (not timeout)
           if (deliveryValidation && !deliveryValidation.isValid && 
-              (deliveryValidation.message?.includes("timeout") || 
-               deliveryValidation.message?.includes("taking longer than expected"))) {
-            console.warn("⏱️ Delivery validation timed out - proceeding with checkout");
-            toast.warning("Could not validate delivery address in time. Proceeding with checkout...", {
-              duration: 4000,
-              description: "If your address is outside our delivery zone, we'll contact you."
-            });
-            // Continue with checkout - don't return
-          }
-          // Only block checkout if validation explicitly says address is invalid (and not due to timeout)
-          else if (deliveryValidation && !deliveryValidation.isValid) {
+              !deliveryValidation.message?.includes("timeout") &&
+              !deliveryValidation.message?.includes("taking longer than expected")) {
             if (deliveryValidation.suggestPickup) {
               toast.error(deliveryValidation.message || "We apologize, but delivery isn't available to this location. Pickup is always available!", {
                 duration: 6000,
@@ -184,63 +169,22 @@ const Cart = () => {
                   onClick: () => setOrderType("pickup")
                 }
               });
-              return;
-            } else {
-              toast.error(deliveryValidation.message || "Invalid delivery address");
-              return;
             }
-          }
-          
-          // Show success message if validation passed
-          if (deliveryValidation && deliveryValidation.isValid) {
+          } else if (deliveryValidation && deliveryValidation.isValid) {
+            // Show success message if validation passed
             if (deliveryValidation.estimatedMinutes) {
               toast.success(deliveryValidation.message || `Estimated delivery: ${deliveryValidation.estimatedMinutes} min`, {
                 duration: 4000
               });
-            } else {
-              toast.success("Delivery address validated successfully", {
-                duration: 3000
-              });
-            }
-            
-            // Update address with formatted address from Google Maps
-            if (deliveryValidation.formattedAddress) {
-              setCustomerInfo({ ...customerInfo, address: deliveryValidation.formattedAddress });
             }
           }
-        } catch (deliveryError: any) {
-          console.error("❌ Google Maps delivery validation error (non-blocking):", deliveryError);
-          
-          // Don't block checkout if validation fails or times out - just warn
-          if (deliveryError?.message === "Delivery validation timeout" || 
-              deliveryError?.message?.includes("timeout") ||
-              deliveryError?.message === "Validation timeout") {
-            console.warn("⏱️ Delivery validation timed out - proceeding with checkout");
-            toast.warning("Could not validate delivery address in time. Proceeding with checkout...", {
-              duration: 4000,
-              description: "If your address is outside our delivery zone, we'll contact you."
-            });
-          } else {
-            console.warn("⚠️ Delivery validation failed - proceeding with checkout");
-            toast.warning("Could not validate delivery address. Proceeding with checkout...", {
-              duration: 4000,
-              description: "If your address is outside our delivery zone, we'll contact you."
-            });
-          }
-          // Continue with checkout even if validation fails
-        }
+        }).catch((deliveryError: any) => {
+          console.warn("⚠️ Delivery validation failed (non-blocking):", deliveryError);
+          // Don't show error - just log it, checkout continues
+        });
       } else if (customerInfo.address.trim()) {
-        // Fallback to text-based validation if no place_id available
-        console.log("Validating delivery address with text (fallback):", customerInfo.address);
-        try {
-          const validationPromise = validateDeliveryAddress(customerInfo.address);
-          // Increased timeout to 35 seconds to match the utility function timeout (30s) plus buffer
-          const timeoutPromise = new Promise<never>((_, reject) => 
-            setTimeout(() => reject(new Error("Delivery validation timeout")), 35000)
-          );
-          
-          const deliveryValidation = await Promise.race([validationPromise, timeoutPromise]);
-          
+        // Fallback validation - also non-blocking
+        validateDeliveryAddress(customerInfo.address).then((deliveryValidation) => {
           if (deliveryValidation && !deliveryValidation.isValid && deliveryValidation.suggestPickup) {
             toast.error(deliveryValidation.message || "We apologize, but delivery isn't available to this location. Pickup is always available!", {
               duration: 6000,
@@ -249,18 +193,12 @@ const Cart = () => {
                 onClick: () => setOrderType("pickup")
               }
             });
-            return;
           }
-        } catch (error) {
-          console.warn("⚠️ Fallback validation failed - proceeding with checkout");
-          toast.warning("Could not validate delivery address. Proceeding with checkout...", {
-            duration: 4000
-          });
-        }
-      } else {
-        toast.error("Please select an address from the autocomplete suggestions for accurate delivery validation.");
-        return;
+        }).catch((error) => {
+          console.warn("⚠️ Fallback validation failed (non-blocking):", error);
+        });
       }
+      // If no address selected, still proceed - don't block checkout
     } else {
       console.log("Pickup order - skipping delivery validation");
     }
