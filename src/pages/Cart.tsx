@@ -148,20 +148,32 @@ const Cart = () => {
       if (selectedPlace?.place_id) {
         console.log("Validating delivery address with Google Maps place_id:", selectedPlace.place_id);
         try {
-          // Reduced timeout to 5 seconds (Google APIs are faster)
+          // Increased timeout to 20 seconds to match the utility function timeout (15s) plus buffer
+          // The utility function already has a 15-second timeout, so this outer timeout should be longer
           const validationPromise = validateDeliveryAddressGoogle(
             selectedPlace.place_id,
             selectedPlace.formatted_address
           );
           const timeoutPromise = new Promise<never>((_, reject) => 
-            setTimeout(() => reject(new Error("Delivery validation timeout")), 5000)
+            setTimeout(() => reject(new Error("Delivery validation timeout")), 20000)
           );
           
           const deliveryValidation = await Promise.race([validationPromise, timeoutPromise]);
           console.log("Google Maps delivery validation result:", deliveryValidation);
           
-          // Only block checkout if validation explicitly says address is invalid
-          if (deliveryValidation && !deliveryValidation.isValid) {
+          // Check if validation timed out (returns error result with timeout message)
+          if (deliveryValidation && !deliveryValidation.isValid && 
+              (deliveryValidation.message?.includes("timeout") || 
+               deliveryValidation.message?.includes("taking longer than expected"))) {
+            console.warn("⏱️ Delivery validation timed out - proceeding with checkout");
+            toast.warning("Could not validate delivery address in time. Proceeding with checkout...", {
+              duration: 4000,
+              description: "If your address is outside our delivery zone, we'll contact you."
+            });
+            // Continue with checkout - don't return
+          }
+          // Only block checkout if validation explicitly says address is invalid (and not due to timeout)
+          else if (deliveryValidation && !deliveryValidation.isValid) {
             if (deliveryValidation.suggestPickup) {
               toast.error(deliveryValidation.message || "We apologize, but delivery isn't available to this location. Pickup is always available!", {
                 duration: 6000,
@@ -198,7 +210,9 @@ const Cart = () => {
           console.error("❌ Google Maps delivery validation error (non-blocking):", deliveryError);
           
           // Don't block checkout if validation fails or times out - just warn
-          if (deliveryError?.message === "Delivery validation timeout" || deliveryError?.message?.includes("timeout")) {
+          if (deliveryError?.message === "Delivery validation timeout" || 
+              deliveryError?.message?.includes("timeout") ||
+              deliveryError?.message === "Validation timeout") {
             console.warn("⏱️ Delivery validation timed out - proceeding with checkout");
             toast.warning("Could not validate delivery address in time. Proceeding with checkout...", {
               duration: 4000,
@@ -218,8 +232,9 @@ const Cart = () => {
         console.log("Validating delivery address with text (fallback):", customerInfo.address);
         try {
           const validationPromise = validateDeliveryAddress(customerInfo.address);
+          // Increased timeout to 35 seconds to match the utility function timeout (30s) plus buffer
           const timeoutPromise = new Promise<never>((_, reject) => 
-            setTimeout(() => reject(new Error("Delivery validation timeout")), 8000)
+            setTimeout(() => reject(new Error("Delivery validation timeout")), 35000)
           );
           
           const deliveryValidation = await Promise.race([validationPromise, timeoutPromise]);
