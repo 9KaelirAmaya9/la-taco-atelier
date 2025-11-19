@@ -146,20 +146,22 @@ const Cart = () => {
     if (orderType === "delivery") {
       // Use Google Maps validation if place_id is available, otherwise fallback to text validation
       if (selectedPlace?.place_id) {
-        console.log("Validating delivery address with Google Maps place_id:", selectedPlace.place_id);
+        console.log("🔍 Cart: Validating delivery address with Google Maps place_id:", selectedPlace.place_id);
+        console.log("🔍 Cart: Formatted address:", selectedPlace.formatted_address);
         try {
-          // Increased timeout to 20 seconds to match the utility function timeout (15s) plus buffer
-          // The utility function already has a 15-second timeout, so this outer timeout should be longer
+          // Increased timeout to 25 seconds to match the utility function timeout (20s) plus buffer
           const validationPromise = validateDeliveryAddressGoogle(
             selectedPlace.place_id,
             selectedPlace.formatted_address
           );
           const timeoutPromise = new Promise<never>((_, reject) => 
-            setTimeout(() => reject(new Error("Delivery validation timeout")), 20000)
+            setTimeout(() => reject(new Error("Delivery validation timeout")), 25000)
           );
           
           const deliveryValidation = await Promise.race([validationPromise, timeoutPromise]);
-          console.log("Google Maps delivery validation result:", deliveryValidation);
+          console.log("✅ Cart: Google Maps delivery validation result:", deliveryValidation);
+          console.log("✅ Cart: Validation isValid:", deliveryValidation?.isValid);
+          console.log("✅ Cart: Validation message:", deliveryValidation?.message);
           
           // Check if validation timed out (returns error result with timeout message)
           if (deliveryValidation && !deliveryValidation.isValid && 

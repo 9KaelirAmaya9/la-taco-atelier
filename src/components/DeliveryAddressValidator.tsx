@@ -44,11 +44,13 @@ const DeliveryAddressValidator = ({
     setError(null);
 
     try {
+      console.log("🔍 DeliveryAddressValidator: Starting validation for place_id:", selectedPlace.place_id);
       const validation = await validateDeliveryAddressGoogle(
         selectedPlace.place_id,
         selectedPlace.formatted_address,
       );
 
+      console.log("✅ DeliveryAddressValidator: Validation result:", validation);
       setResult(validation);
 
       if (onValidationComplete) {
@@ -58,8 +60,18 @@ const DeliveryAddressValidator = ({
           estimatedMinutes: validation.estimatedMinutes,
         });
       }
+      
+      // If validation failed, set error message
+      if (!validation.isValid) {
+        setError(validation.message || "We couldn't validate this address. Please try again or call to confirm.");
+      }
     } catch (e: any) {
       console.error("❌ Google Maps validation error on Location page:", e);
+      console.error("❌ Error details:", {
+        message: e?.message,
+        stack: e?.stack,
+        name: e?.name
+      });
       setError(
         e?.message ||
           "We couldn't validate this address right now. Please try again or call to confirm.",

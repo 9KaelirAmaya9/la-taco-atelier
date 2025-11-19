@@ -39,9 +39,9 @@ export const validateDeliveryAddressGoogle = async (
       };
     }
     
-    // Increased timeout to 25 seconds to allow for edge function processing, multiple API calls, and network latency
+    // Increased timeout to 20 seconds to allow for edge function processing, multiple API calls, and network latency
     const timeoutPromise = new Promise<never>((_, reject) => {
-      setTimeout(() => reject(new Error('Validation timeout')), 25000);
+      setTimeout(() => reject(new Error('Validation timeout')), 20000);
     });
 
     // Call the new Google Maps validation edge function
@@ -55,6 +55,8 @@ export const validateDeliveryAddressGoogle = async (
     const result = await Promise.race([validationPromise, timeoutPromise]) as any;
 
     console.log("📦 Google Maps validation raw result:", result);
+    console.log("📦 Result type:", typeof result);
+    console.log("📦 Result keys:", result && typeof result === 'object' ? Object.keys(result) : 'N/A');
 
     // Handle different response formats
     let data: any = null;
@@ -65,15 +67,26 @@ export const validateDeliveryAddressGoogle = async (
       if ('data' in result && 'error' in result) {
         data = result.data;
         error = result.error;
-        console.log("📦 Supabase function response - data:", data, "error:", error);
+        console.log("📦 Supabase function response - data:", JSON.stringify(data), "error:", JSON.stringify(error));
+        
+        // If error exists, check if it's actually a validation result in the error
+        if (error && typeof error === 'object' && 'isValid' in error) {
+          console.log("⚠️ Validation result found in error field, using it as data");
+          data = error;
+          error = null;
+        }
       } else if ('isValid' in result) {
         // Direct response from edge function
         data = result;
-        console.log("📦 Direct edge function response:", data);
+        console.log("📦 Direct edge function response:", JSON.stringify(data));
+      } else if (result.error) {
+        // Error object
+        error = result.error;
+        console.log("📦 Error object found:", JSON.stringify(error));
       } else {
         // Try to parse as error
         error = result;
-        console.log("📦 Parsed as error:", error);
+        console.log("📦 Parsed as error:", JSON.stringify(error));
       }
     } else {
       error = result;
