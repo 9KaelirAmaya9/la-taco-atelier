@@ -156,9 +156,9 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     );
 
-    // Add timeout to database query (5 seconds)
+    // Add timeout to database query (3 seconds - DB should be fast)
     const dbTimeout = new Promise<never>((_, reject) => {
-      setTimeout(() => reject(new Error('Database query timeout')), 5000);
+      setTimeout(() => reject(new Error('Database query timeout')), 3000);
     });
 
     const dbQuery = supabase
@@ -178,7 +178,7 @@ Deno.serve(async (req) => {
       ]);
       
       if (result.type === 'timeout') {
-        console.error('⏱️  Database query timed out after 5 seconds');
+        console.error('⏱️  Database query timed out after 3 seconds');
         zoneError = { message: 'Database query timeout' };
       } else {
         zone = result.data;
@@ -255,7 +255,8 @@ Deno.serve(async (req) => {
       }
       
       // Validate the route is reasonable (not too far)
-      if (drivingTimeMinutes && drivingTimeMinutes > MAX_DELIVERY_TIME_MINUTES) {
+      const SOFT_LIMIT_MINUTES = MAX_DELIVERY_TIME_MINUTES + 5; // small grace window for real-world traffic
+      if (drivingTimeMinutes && drivingTimeMinutes > SOFT_LIMIT_MINUTES) {
         return new Response(
           JSON.stringify({ 
             isValid: false, 

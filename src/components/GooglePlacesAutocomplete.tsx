@@ -104,13 +104,13 @@ export const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> =
       }
     });
 
-    // Handle input changes (manual typing) - only if no place selected
+    // Handle input changes (manual typing) - clear place when typing
     if (inputRef.current) {
       const handleInput = (e: Event) => {
         const target = e.target as HTMLInputElement;
-        // Only call onChange if value actually changed and no place is selected
+        // Call onChange with undefined place to clear selection when typing
         if (target.value !== value) {
-          onChange(target.value);
+          onChange(target.value, undefined);
         }
       };
       
@@ -195,6 +195,7 @@ export const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> =
           disabled={disabled || !isGoogleMapsLoaded}
           className={`pr-10 ${className}`}
           defaultValue={value}
+          autoComplete="off"
         />
         <div className="absolute right-3 top-1/2 -translate-y-1/2">
           {isLoading ? (
@@ -209,9 +210,46 @@ export const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> =
           Loading address autocomplete...
         </p>
       )}
-      <p className="text-xs text-muted-foreground">
-        Start typing to see address suggestions. Select an address from the dropdown for accurate delivery.
-      </p>
+      {isGoogleMapsLoaded && (
+        <p className="text-xs text-muted-foreground">
+          💡 <strong>Important:</strong> Type your address and select it from the dropdown suggestions that appear.
+        </p>
+      )}
+      <style>{`
+        .pac-container {
+          z-index: 99999 !important;
+          border-radius: 0.5rem;
+          border: 1px solid hsl(var(--border));
+          box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+          margin-top: 0.25rem;
+          font-family: inherit;
+          background: hsl(var(--background)) !important;
+        }
+        .pac-item {
+          padding: 0.75rem 1rem;
+          border: none;
+          cursor: pointer;
+          font-size: 0.875rem;
+          color: hsl(var(--foreground)) !important;
+          background: hsl(var(--background)) !important;
+        }
+        .pac-item:hover {
+          background-color: hsl(var(--accent)) !important;
+        }
+        .pac-item-selected {
+          background-color: hsl(var(--accent)) !important;
+        }
+        .pac-icon {
+          margin-right: 0.5rem;
+        }
+        .pac-item-query {
+          font-weight: 500;
+          color: hsl(var(--foreground));
+        }
+        .pac-matched {
+          font-weight: 600;
+        }
+      `}</style>
     </div>
   );
 };

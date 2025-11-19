@@ -39,9 +39,9 @@ export const validateDeliveryAddressGoogle = async (
       };
     }
     
-    // Increased timeout to 15 seconds to allow for edge function processing, API calls, and network latency
+    // Increased timeout to 25 seconds to allow for edge function processing, multiple API calls, and network latency
     const timeoutPromise = new Promise<never>((_, reject) => {
-      setTimeout(() => reject(new Error('Validation timeout')), 15000);
+      setTimeout(() => reject(new Error('Validation timeout')), 25000);
     });
 
     // Call the new Google Maps validation edge function
