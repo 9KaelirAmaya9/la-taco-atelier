@@ -196,7 +196,6 @@ Deno.serve(async (req) => {
       
       // Validate the route is reasonable (not too far)
       if (drivingTimeMinutes && drivingTimeMinutes > MAX_DELIVERY_TIME_MINUTES) {
-<<<<<<< HEAD
         return new Response(
           JSON.stringify({ 
             isValid: false, 
@@ -207,18 +206,6 @@ Deno.serve(async (req) => {
           }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
-=======
-      return new Response(
-        JSON.stringify({ 
-          isValid: false, 
-          message: `We apologize, but your location is outside our 20-minute delivery zone (estimated ${drivingTimeMinutes} minutes away). Pickup is always available and ready in 20-30 minutes!`,
-          suggestPickup: true,
-          estimatedMinutes: drivingTimeMinutes,
-          distanceMiles: distanceMiles
-        }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
->>>>>>> 2a8c815c80d74db4d5655b67d51cb10eb13a0acb
       }
       
       // If we can't calculate route, be conservative and suggest pickup
