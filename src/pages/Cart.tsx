@@ -143,7 +143,12 @@ const Cart = () => {
       return;
     }
     
-    // If delivery and we have selectedPlace but no address in customerInfo, use selectedPlace
+    // Determine final delivery address - use selectedPlace if available, otherwise customerInfo.address
+    const finalDeliveryAddress = orderType === "delivery" 
+      ? (selectedPlace?.formatted_address || customerInfo.address || "")
+      : "";
+    
+    // If delivery and we have selectedPlace but no address in customerInfo, update state for UI
     if (orderType === "delivery" && selectedPlace?.formatted_address && !customerInfo.address.trim()) {
       setCustomerInfo({ ...customerInfo, address: selectedPlace.formatted_address });
     }
