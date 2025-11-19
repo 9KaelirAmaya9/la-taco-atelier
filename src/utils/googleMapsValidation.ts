@@ -39,9 +39,9 @@ export const validateDeliveryAddressGoogle = async (
       };
     }
     
-    // Reduced timeout to 5 seconds (Google APIs are faster than Mapbox)
+    // Increased timeout to 15 seconds to allow for edge function processing, API calls, and network latency
     const timeoutPromise = new Promise<never>((_, reject) => {
-      setTimeout(() => reject(new Error('Validation timeout')), 5000);
+      setTimeout(() => reject(new Error('Validation timeout')), 15000);
     });
 
     // Call the new Google Maps validation edge function

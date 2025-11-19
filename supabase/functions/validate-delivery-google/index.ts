@@ -26,6 +26,7 @@ Deno.serve(async (req) => {
   }
 
   console.log('🔄 validate-delivery-google: Request received');
+  const requestStartTime = Date.now();
 
   try {
     const { place_id, formatted_address }: DeliveryValidationRequest = await req.json();
@@ -63,7 +64,20 @@ Deno.serve(async (req) => {
     const placeDetailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${encodeURIComponent(place_id)}&fields=geometry,formatted_address,address_components&key=${GOOGLE_MAPS_API_KEY}`;
     
     console.log('🔍 validate-delivery-google: Calling Google Places API...');
-    const placeDetailsResponse = await fetch(placeDetailsUrl);
+    const placeDetailsStartTime = Date.now();
+    
+    // Add timeout to Places API call (10 seconds)
+    const placesApiTimeout = new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new Error('Places API timeout')), 10000);
+    });
+    
+    const placeDetailsResponse = await Promise.race([
+      fetch(placeDetailsUrl),
+      placesApiTimeout
+    ]) as Response;
+    
+    const placesApiTime = Date.now() - placeDetailsStartTime;
+    console.log(`⏱️  Places API call took ${placesApiTime}ms`);
     
     if (!placeDetailsResponse.ok) {
       console.error('❌ validate-delivery-google: Google Places API error:', placeDetailsResponse.statusText);
@@ -136,17 +150,47 @@ Deno.serve(async (req) => {
 
     // Step 2: Check if ZIP code is in pre-approved delivery zones
     console.log('🗄️  validate-delivery-google: Checking delivery zones DB...');
+    const dbStartTime = Date.now();
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     );
 
-    const { data: zone, error: zoneError } = await supabase
+    // Add timeout to database query (5 seconds)
+    const dbTimeout = new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new Error('Database query timeout')), 5000);
+    });
+
+    const dbQuery = supabase
       .from('delivery_zones')
       .select('estimated_minutes, is_active')
       .eq('zip_code', zipCode)
       .eq('is_active', true)
       .single();
+
+    let zone: any = null;
+    let zoneError: any = null;
+    
+    try {
+      const result = await Promise.race([
+        dbQuery.then((r: any) => ({ type: 'success', ...r })),
+        dbTimeout.then(() => ({ type: 'timeout' }))
+      ]);
+      
+      if (result.type === 'timeout') {
+        console.error('⏱️  Database query timed out after 5 seconds');
+        zoneError = { message: 'Database query timeout' };
+      } else {
+        zone = result.data;
+        zoneError = result.error;
+      }
+    } catch (dbError: any) {
+      console.error('❌ validate-delivery-google: Database query error:', dbError);
+      zoneError = dbError;
+    }
+    
+    const dbTime = Date.now() - dbStartTime;
+    console.log(`⏱️  Database query took ${dbTime}ms`);
 
     // Step 3: If not in database, calculate real-time travel time using Google Distance Matrix API
     if (zoneError || !zone) {
@@ -160,7 +204,20 @@ Deno.serve(async (req) => {
       let distanceMiles: number | null = null;
       
       try {
-        const distanceMatrixResponse = await fetch(distanceMatrixUrl);
+        const distanceMatrixStartTime = Date.now();
+        
+        // Add timeout to Distance Matrix API call (10 seconds)
+        const distanceMatrixTimeout = new Promise<never>((_, reject) => {
+          setTimeout(() => reject(new Error('Distance Matrix API timeout')), 10000);
+        });
+        
+        const distanceMatrixResponse = await Promise.race([
+          fetch(distanceMatrixUrl),
+          distanceMatrixTimeout
+        ]) as Response;
+        
+        const distanceMatrixTime = Date.now() - distanceMatrixStartTime;
+        console.log(`⏱️  Distance Matrix API call took ${distanceMatrixTime}ms`);
         
         if (distanceMatrixResponse.ok) {
           distanceMatrixData = await distanceMatrixResponse.json();
@@ -190,8 +247,11 @@ Deno.serve(async (req) => {
         } else {
           console.error('❌ validate-delivery-google: Distance Matrix API error:', distanceMatrixResponse.statusText);
         }
-      } catch (distanceError) {
+      } catch (distanceError: any) {
         console.error('❌ validate-delivery-google: Distance Matrix API exception:', distanceError);
+        if (distanceError?.message === 'Distance Matrix API timeout') {
+          console.error('⏱️  Distance Matrix API timed out after 10 seconds');
+        }
       }
       
       // Validate the route is reasonable (not too far)
@@ -237,6 +297,9 @@ Deno.serve(async (req) => {
         // Don't fail validation if DB insert fails
       }
 
+      const totalTime = Date.now() - requestStartTime;
+      console.log(`✅ validate-delivery-google: Validation successful (calculated) in ${totalTime}ms`);
+      
       return new Response(
         JSON.stringify({ 
           isValid: true, 
@@ -250,6 +313,9 @@ Deno.serve(async (req) => {
     }
 
     // Step 4: Return validated zone data
+    const totalTime = Date.now() - requestStartTime;
+    console.log(`✅ validate-delivery-google: Validation successful (from DB) in ${totalTime}ms`);
+    
     return new Response(
       JSON.stringify({ 
         isValid: true, 
@@ -260,8 +326,9 @@ Deno.serve(async (req) => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
-  } catch (error) {
-    console.error('❌ validate-delivery-google: Error:', error);
+  } catch (error: any) {
+    const totalTime = Date.now() - requestStartTime;
+    console.error('❌ validate-delivery-google: Error after', totalTime, 'ms');
     console.error('❌ Error type:', typeof error);
     console.error('❌ Error message:', error instanceof Error ? error.message : String(error));
     console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack trace');
@@ -270,7 +337,10 @@ Deno.serve(async (req) => {
     let errorMessage = 'We apologize, but we couldn\'t validate your address. Pickup is always available!';
     
     if (error instanceof Error) {
-      if (error.message.includes('GOOGLE') || error.message.includes('API_KEY')) {
+      if (error.message.includes('timeout') || error.message.includes('Timeout')) {
+        errorMessage = 'Validation is taking longer than expected. Please try again or choose pickup instead.';
+        console.error('⏱️  Request timed out after', totalTime, 'ms');
+      } else if (error.message.includes('GOOGLE') || error.message.includes('API_KEY')) {
         errorMessage = 'Service temporarily unavailable. Please try pickup instead.';
       } else if (error.message.includes('network') || error.message.includes('fetch')) {
         errorMessage = 'Network error during validation. Please try again or choose pickup.';
