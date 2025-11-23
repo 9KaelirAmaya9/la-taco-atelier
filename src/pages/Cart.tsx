@@ -324,17 +324,15 @@ const Cart = () => {
       });
       
       // Create insert promise with explicit error handling
+      // Removed .select('id').single() to improve performance - we don't need the ID back
       const orderInsertPromise = (async () => {
         try {
           console.log("🔄 Starting database insert...");
           const result = await supabase
             .from("orders")
-            .insert([orderDataToInsert])
-            .select('id')
-            .single();
+            .insert([orderDataToInsert]);
           
           console.log("📦 Insert result:", {
-            hasData: !!result.data,
             hasError: !!result.error,
             error: result.error
           });
@@ -356,8 +354,8 @@ const Cart = () => {
         setTimeout(() => {
           const elapsed = Date.now() - orderStartTime;
           clearInterval(orderHeartbeat);
-          reject(new Error(`Order creation timed out after 15 seconds (elapsed: ${elapsed}ms). The database may be slow or there may be a connection issue.`));
-        }, 15000) // Increased to 15 seconds
+          reject(new Error(`Order creation timed out after 10 seconds (elapsed: ${elapsed}ms). Please check your connection and try again.`));
+        }, 10000) // 10 seconds should be plenty for simple insert
       );
 
       const result = await Promise.race([
