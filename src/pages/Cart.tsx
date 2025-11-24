@@ -323,23 +323,45 @@ const Cart = () => {
         order_type: orderDataToInsert.order_type
       });
       
-      // Create insert promise with explicit error handling
-      // Removed .select('id').single() to improve performance - we don't need the ID back
+      // Create insert promise with explicit error handling and connection test
       const orderInsertPromise = (async () => {
         try {
           console.log("🔄 Starting database insert...");
+          console.log("🔍 Testing Supabase connection first...");
+          
+          // Quick connection test - try to count orders (should be fast)
+          const connectionTest = await Promise.race([
+            supabase.from("orders").select("id", { count: "exact", head: true }),
+            new Promise((_, reject) => setTimeout(() => reject(new Error("Connection test timeout")), 3000))
+          ]);
+          
+          console.log("✅ Connection test passed");
+          
+          // Now try the actual insert
+          console.log("💾 Attempting order insert...");
+          const insertStartTime = Date.now();
+          
           const result = await supabase
             .from("orders")
             .insert([orderDataToInsert]);
           
-          console.log("📦 Insert result:", {
+          const insertDuration = Date.now() - insertStartTime;
+          
+          console.log("📦 Insert completed:", {
+            duration: `${insertDuration}ms`,
             hasError: !!result.error,
-            error: result.error
+            errorMessage: result.error?.message,
+            errorCode: result.error?.code,
+            errorDetails: result.error?.details
           });
           
           return result;
         } catch (insertError: any) {
-          console.error("❌ Insert exception:", insertError);
+          console.error("❌ Insert exception:", {
+            message: insertError?.message,
+            name: insertError?.name,
+            stack: insertError?.stack
+          });
           return {
             data: null,
             error: {
