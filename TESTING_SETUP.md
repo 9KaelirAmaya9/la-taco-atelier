@@ -168,11 +168,49 @@ Open `coverage/index.html` in browser to view detailed coverage report.
 
 ---
 
+## Performance Testing
+
+### Checkout Performance Tests
+
+The project includes comprehensive E2E tests to monitor checkout performance:
+
+```bash
+# Run performance tests
+npm run test:e2e -- e2e/checkout-performance.spec.ts
+
+# Run database performance tests
+npm run test:e2e -- e2e/checkout-database-performance.spec.ts
+```
+
+**Performance Thresholds:**
+- Order creation: < 10 seconds
+- Payment intent: < 12 seconds
+- Total checkout: < 30 seconds
+
+These tests catch performance regressions early by:
+- Measuring order creation time
+- Testing concurrent orders
+- Validating large cart performance
+- Ensuring UI remains responsive
+
+### Running Performance Tests in CI
+
+Add to your CI pipeline to catch regressions:
+
+```yaml
+- name: Run Performance Tests
+  run: npm run test:e2e -- e2e/checkout-performance.spec.ts --reporter=json
+- name: Check Performance Thresholds
+  run: node scripts/check-performance.js
+```
+
+---
+
 ## Next Steps
 
-1. Add more unit tests for components
-2. Add integration tests for user flows
-3. Add E2E tests for critical paths
+1. ✅ Checkout performance tests implemented
+2. Add more unit tests for components
+3. Add integration tests for user flows
 4. Set up CI/CD pipeline
 5. Add visual regression testing
 
