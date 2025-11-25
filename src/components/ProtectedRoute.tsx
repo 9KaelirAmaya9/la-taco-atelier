@@ -149,7 +149,7 @@ export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) 
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/auth" replace />;
+    return <Navigate to={`/auth?redirect=${encodeURIComponent(window.location.pathname)}`} replace />;
   }
 
   if (requiredRole && !hasRole) {
