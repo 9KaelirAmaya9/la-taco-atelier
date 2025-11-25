@@ -15,6 +15,7 @@ export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) 
 
   useEffect(() => {
     let mounted = true;
+    let timeoutId: NodeJS.Timeout;
 
     const checkAuthAndRole = async () => {
       try {
@@ -46,11 +47,11 @@ export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) 
           return;
         }
 
-        // Check role - use RPC function if available, otherwise direct query
+        // Check role with timeout protection
         let userHasRole = false;
         
         try {
-          // First try direct query (works if RLS allows)
+          // Query user_roles directly
           const { data: roles, error: roleError } = await supabase
             .from("user_roles")
             .select("role")
@@ -58,68 +59,60 @@ export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) 
 
           if (!mounted) return;
 
-          if (!roleError && roles) {
+          if (roleError) {
+            console.error("Role query error:", roleError);
+            // If query fails, assume no role
+            userHasRole = false;
+          } else if (roles && roles.length > 0) {
+            // Check if user has the required role (or admin can access kitchen)
             userHasRole = roles.some(
               (r) => r.role === requiredRole || (requiredRole === 'kitchen' && r.role === 'admin')
             );
-          } else if (roleError) {
-            // If direct query fails, try RPC function as fallback
-            console.warn("Direct role query failed, trying RPC:", roleError);
-            try {
-              const { data: hasAdminRole } = await supabase.rpc('has_role', {
-                _user_id: session.user.id,
-                _role: requiredRole === 'kitchen' ? 'kitchen' : 'admin'
-              });
-              userHasRole = hasAdminRole || false;
-            } catch (rpcError) {
-              console.error("RPC role check also failed:", rpcError);
-              // Last resort: check if user is admin (admins can access kitchen)
-              if (requiredRole === 'kitchen') {
-                try {
-                  const { data: adminCheck } = await supabase.rpc('has_role', {
-                    _user_id: session.user.id,
-                    _role: 'admin'
-                  });
-                  userHasRole = adminCheck || false;
-                } catch (e) {
-                  console.error("Admin check failed:", e);
+            console.log("User roles:", roles, "Required:", requiredRole, "Has access:", userHasRole);
+          } else {
+            // No roles found - try bootstrap for admin
+            if (requiredRole === 'admin') {
+              try {
+                const { data: granted } = await supabase.rpc('bootstrap_admin');
+                if (granted === true) {
+                  // Re-check roles after bootstrap
+                  const { data: rolesAfter } = await supabase
+                    .from('user_roles')
+                    .select('role')
+                    .eq('user_id', session.user.id);
+                  userHasRole = rolesAfter?.some((r) => r.role === 'admin') ?? false;
                 }
+              } catch (e) {
+                console.error('Bootstrap admin failed:', e);
               }
-            }
-          }
-
-          // Attempt first-admin bootstrap if needed (from remote version)
-          if (!userHasRole && requiredRole === 'admin') {
-            try {
-              const { data: granted, error: bootstrapError } = await supabase.rpc('bootstrap_admin');
-              if (bootstrapError) {
-                console.error('Bootstrap admin error:', bootstrapError);
-              } else if (granted === true) {
-                const { data: rolesAfter } = await supabase
-                  .from('user_roles')
-                  .select('role')
-                  .eq('user_id', session.user.id);
-                userHasRole = rolesAfter?.some((r) => r.role === 'admin') ?? false;
-              }
-            } catch (e) {
-              console.error('Bootstrap admin exception:', e);
             }
           }
         } catch (e) {
           console.error("Role check exception:", e);
+          userHasRole = false;
         }
         
-        setHasRole(userHasRole);
+        if (mounted) {
+          setHasRole(userHasRole);
+          setIsLoading(false);
+        }
       } catch (e) {
         console.error("Auth/Role check error:", e);
         if (mounted) {
           setIsAuthenticated(false);
           setHasRole(false);
+          setIsLoading(false);
         }
-      } finally {
-        if (mounted) setIsLoading(false);
       }
     };
+
+    // Set a timeout failsafe (10 seconds max)
+    timeoutId = setTimeout(() => {
+      if (mounted && isLoading) {
+        console.error("Auth check timeout - forcing completion");
+        setIsLoading(false);
+      }
+    }, 10000);
 
     // Initial check
     checkAuthAndRole();
@@ -128,17 +121,17 @@ export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!mounted) return;
       
-      // Reset state and re-check
+      // Reset and re-check
       setIsLoading(true);
-      // Use requestAnimationFrame for better timing, or directly call
       checkAuthAndRole();
     });
 
     return () => {
       mounted = false;
+      clearTimeout(timeoutId);
       subscription.unsubscribe();
     };
-  }, [requiredRole]);
+  }, [requiredRole, isLoading]);
 
   if (isLoading) {
     return (
