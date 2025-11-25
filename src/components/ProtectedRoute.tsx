@@ -28,16 +28,8 @@ export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) 
       const startTime = Date.now();
 
       try {
-        // Get session with a reasonable timeout
-        const sessionPromise = supabase.auth.getSession();
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error("Session check timeout")), 5000)
-        );
+        const { data: { session }, error } = await supabase.auth.getSession();
 
-        const { data: { session }, error } = await Promise.race([
-          sessionPromise,
-          timeoutPromise
-        ]) as any;
         
         if (!mounted) return;
 
