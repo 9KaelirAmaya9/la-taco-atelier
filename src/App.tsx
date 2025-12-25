@@ -30,6 +30,7 @@ import NotFound from "./pages/NotFound";
 import ServerError from "./pages/ServerError";
 import MenuCatalog from "./pages/MenuCatalog";
 import DatabaseVerification from "./pages/DatabaseVerification";
+import AdminAnalytics from "./pages/AdminAnalytics";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 // Configure React Query with optimized defaults
@@ -70,6 +71,7 @@ const App = () => (
                 <Route path="/logout" element={<Logout />} />
                 <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><Admin /></ProtectedRoute>} />
                 <Route path="/admin/orders" element={<ProtectedRoute requiredRole="admin"><AdminOrders /></ProtectedRoute>} />
+                <Route path="/admin/analytics" element={<ProtectedRoute requiredRole="admin"><AdminAnalytics /></ProtectedRoute>} />
                 <Route path="/admin/roles" element={<ProtectedRoute requiredRole="admin"><AdminRoles /></ProtectedRoute>} />
                 <Route path="/admin/passwords" element={<ProtectedRoute requiredRole="admin"><AdminPasswordManagement /></ProtectedRoute>} />
                 <Route path="/admin/verify" element={<ProtectedRoute requiredRole="admin"><DatabaseVerification /></ProtectedRoute>} />
