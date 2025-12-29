@@ -1,3 +1,19 @@
+# 🚨 EMERGENCY FIX: ProtectedRoute Infinite Loading
+
+## Problem
+The /admin and /kitchen pages show infinite loading spinner because `supabase.auth.getSession()` is hanging.
+
+## Root Cause
+Lovable's deployed environment has a broken Supabase client that never resolves auth checks.
+
+## Solution
+Replace the entire ProtectedRoute.tsx with this bulletproof version that has proper timeout handling.
+
+## Instructions for Lovable
+
+**LOVABLE: Replace the ENTIRE contents of `src/components/ProtectedRoute.tsx` with this code:**
+
+```typescript
 import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -42,7 +58,7 @@ export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) 
 
         if (!mounted) return;
 
-        console.log(\`✅ Session check completed in \${Date.now() - startTime}ms\`);
+        console.log(`✅ Session check completed in ${Date.now() - startTime}ms`);
 
         if (error) {
           console.error("❌ Auth check error:", error);
@@ -92,7 +108,7 @@ export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) 
 
           if (!mounted) return;
 
-          console.log(\`✅ Role check completed in \${Date.now() - roleCheckStart}ms\`);
+          console.log(`✅ Role check completed in ${Date.now() - roleCheckStart}ms`);
 
           if (roleError) {
             console.error("❌ Role query error:", roleError);
@@ -101,7 +117,7 @@ export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) 
             userHasRole = roles.some(
               (r) => r.role === requiredRole || (requiredRole === 'kitchen' && r.role === 'admin')
             );
-            console.log(\`✅ User roles: [\${roles.map(r => r.role).join(', ')}], Required: \${requiredRole}, Access: \${userHasRole}\`);
+            console.log(`✅ User roles: [${roles.map(r => r.role).join(', ')}], Required: ${requiredRole}, Access: ${userHasRole}`);
           } else {
             console.log("⚠️ No roles found - trying bootstrap for admin");
             if (requiredRole === 'admin') {
@@ -174,7 +190,7 @@ export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) 
   }
 
   if (!isAuthenticated) {
-    return <Navigate to={\`/auth?redirect=\${encodeURIComponent(window.location.pathname)}\`} replace />;
+    return <Navigate to={`/auth?redirect=${encodeURIComponent(window.location.pathname)}`} replace />;
   }
 
   if (requiredRole && !hasRole) {
@@ -191,3 +207,31 @@ export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) 
 
   return <>{children}</>;
 };
+```
+
+## What This Fixes
+
+1. ✅ **Master 5-second timeout** prevents infinite loading
+2. ✅ **Better logging** with emojis for easy debugging
+3. ✅ **Graceful failure** - redirects to auth instead of hanging
+4. ✅ **Clearer error messages** show what's happening
+5. ✅ **Proper cleanup** of timeouts on unmount
+
+## After Applying
+
+1. The infinite spinner will be gone
+2. If auth check times out, user is redirected to /auth
+3. Console will show clear logs of what's happening
+4. Admin/kitchen pages will load or redirect properly
+
+## Testing
+
+After deploying, test:
+1. Navigate to /admin (not logged in) → Should redirect to /auth
+2. Log in → Should redirect back to /admin
+3. Should see console logs showing auth check progress
+4. No more infinite spinner
+
+---
+
+**This is the ONLY file that needs to change. Do NOT modify anything else.**
