@@ -42,7 +42,7 @@ export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) 
 
         if (!mounted) return;
 
-        console.log(\`✅ Session check completed in \${Date.now() - startTime}ms\`);
+        console.log(`✅ Session check completed in ${Date.now() - startTime}ms`);
 
         if (error) {
           console.error("❌ Auth check error:", error);
@@ -92,7 +92,7 @@ export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) 
 
           if (!mounted) return;
 
-          console.log(\`✅ Role check completed in \${Date.now() - roleCheckStart}ms\`);
+          console.log(`✅ Role check completed in ${Date.now() - roleCheckStart}ms`);
 
           if (roleError) {
             console.error("❌ Role query error:", roleError);
@@ -101,7 +101,7 @@ export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) 
             userHasRole = roles.some(
               (r) => r.role === requiredRole || (requiredRole === 'kitchen' && r.role === 'admin')
             );
-            console.log(\`✅ User roles: [\${roles.map(r => r.role).join(', ')}], Required: \${requiredRole}, Access: \${userHasRole}\`);
+            console.log(`✅ User roles: [${roles.map(r => r.role).join(', ')}], Required: ${requiredRole}, Access: ${userHasRole}`);
           } else {
             console.log("⚠️ No roles found - trying bootstrap for admin");
             if (requiredRole === 'admin') {
@@ -174,7 +174,7 @@ export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) 
   }
 
   if (!isAuthenticated) {
-    return <Navigate to={\`/auth?redirect=\${encodeURIComponent(window.location.pathname)}\`} replace />;
+    return <Navigate to={`/auth?redirect=${encodeURIComponent(window.location.pathname)}`} replace />;
   }
 
   if (requiredRole && !hasRole) {
