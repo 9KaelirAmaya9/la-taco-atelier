@@ -12,10 +12,10 @@ export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) 
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [hasRole, setHasRole] = useState(false);
+  const authCheckInProgress = useRef(false);
 
   useEffect(() => {
     let mounted = true;
-    const authCheckInProgress = useRef(false);
 
     const checkAuthAndRole = async () => {
       // Prevent concurrent checks

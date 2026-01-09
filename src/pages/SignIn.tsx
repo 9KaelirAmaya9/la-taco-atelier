@@ -19,13 +19,17 @@ const SignIn = () => {
     // Check if user is already logged in
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
-        navigate("/dashboard");
+        console.log("Session loaded:", session.user.email);
+        // Force redirect to dashboard
+        window.location.href = "/dashboard";
       }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
-        navigate("/dashboard");
+      console.log("SignIn auth event:", event, "Session:", !!session);
+      if (event === 'SIGNED_IN' && session) {
+        // Force redirect to dashboard on sign in
+        window.location.href = "/dashboard";
       }
     });
 
@@ -43,12 +47,12 @@ const SignIn = () => {
       });
 
       if (error) throw error;
-      
+
       toast.success("Signed in successfully!");
-      navigate("/dashboard");
+      // Force redirect - don't rely on React Router
+      window.location.href = "/dashboard";
     } catch (error: any) {
       toast.error(error.message || "Failed to sign in");
-    } finally {
       setIsLoading(false);
     }
   };
