@@ -37,8 +37,16 @@ export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) 
       }, 10000);
 
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
+        // Wrap getSession in a timeout to prevent hanging
+        const sessionPromise = supabase.auth.getSession();
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("getSession timeout")), 5000)
+        );
 
+        const { data: { session }, error } = await Promise.race([
+          sessionPromise,
+          timeoutPromise
+        ]) as any;
 
         if (!mounted) {
           console.log("⚠️ Component unmounted, stopping auth check");
@@ -161,6 +169,9 @@ export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) 
         }
       } catch (e: any) {
         console.error("❌ Auth/Role check error:", e.message || e);
+        if (e.message === "getSession timeout") {
+          console.error("💡 Session check timed out - this may indicate a Supabase client issue");
+        }
         if (mounted) {
           setIsAuthenticated(false);
           setHasRole(false);
