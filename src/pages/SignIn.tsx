@@ -31,17 +31,22 @@ const SignIn = () => {
     setIsLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) throw error;
 
-      console.log("✅ Sign in successful, redirecting to dashboard...");
-      // Use replace() for immediate, synchronous redirect that can't be interrupted
-      // This executes before any React lifecycle events can unmount the component
-      window.location.replace("/dashboard");
+      // Verify session exists before redirecting
+      if (data.session) {
+        console.log("✅ Sign in successful, session confirmed");
+        // Small delay to ensure session is persisted to localStorage
+        await new Promise(resolve => setTimeout(resolve, 100));
+        window.location.replace("/dashboard");
+      } else {
+        throw new Error("Session not established");
+      }
     } catch (error: any) {
       toast.error(error.message || "Failed to sign in");
       setIsLoading(false);
