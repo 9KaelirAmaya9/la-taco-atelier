@@ -19,11 +19,21 @@ const SignIn = () => {
     // Check if user is already logged in
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
-        console.log("Session loaded:", session.user.email);
-        // Force immediate redirect using replace to prevent back-button issues
-        window.location.replace("/dashboard");
+        console.log("✅ Session already exists, redirecting to admin");
+        window.location.replace("/admin");
       }
     });
+
+    // Listen for sign-in completion (fires AFTER session is persisted to localStorage)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("🔔 Auth event:", event);
+      if (event === 'SIGNED_IN' && session) {
+        console.log("✅ SIGNED_IN event - session persisted, redirecting to admin");
+        window.location.replace("/admin");
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const handleSignIn = async (e: React.FormEvent) => {
@@ -31,22 +41,16 @@ const SignIn = () => {
     setIsLoading(true);
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) throw error;
 
-      // Verify session exists before redirecting
-      if (data.session) {
-        console.log("✅ Sign in successful, session confirmed");
-        // Small delay to ensure session is persisted to localStorage
-        await new Promise(resolve => setTimeout(resolve, 100));
-        window.location.replace("/dashboard");
-      } else {
-        throw new Error("Session not established");
-      }
+      console.log("✅ Sign in successful - waiting for SIGNED_IN event to redirect");
+      // Don't redirect here - let onAuthStateChange handle it after session is persisted
+      // The SIGNED_IN event will fire automatically and trigger the redirect
     } catch (error: any) {
       toast.error(error.message || "Failed to sign in");
       setIsLoading(false);
