@@ -1,90 +1,16 @@
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { User, Session } from "@supabase/supabase-js";
+import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ChefHat, ClipboardList, UserCircle, LogOut, Loader2 } from "lucide-react";
+import { ChefHat, ClipboardList, UserCircle, LogOut, Loader2, Home } from "lucide-react";
 
 const Dashboard = () => {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [userRoles, setUserRoles] = useState<string[]>([]);
+  const { user, loading, roles, signOut } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    let isMounted = true;
-
-    const fetchRoles = async (userId: string) => {
-      const { data: roles, error: rolesError } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", userId);
-
-      if (!isMounted) return;
-
-      if (rolesError) {
-        if (import.meta.env.DEV) {
-          console.error("Dashboard: Error fetching roles");
-        }
-      } else if (roles) {
-        const userRolesList = roles.map((r) => r.role);
-        setUserRoles(userRolesList);
-      }
-    };
-
-    // 1) Listen for auth changes FIRST, then react
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
-      if (!isMounted) return;
-
-      setSession(newSession ?? null);
-      setUser(newSession?.user ?? null);
-
-      if (newSession?.user) {
-        // Fetch roles directly - no need for setTimeout
-        fetchRoles(newSession.user.id).finally(() => {
-          if (isMounted) setLoading(false);
-        });
-      } else {
-        setUserRoles([]);
-        setLoading(false);
-      }
-    });
-
-    // 2) Also check current session on mount in case it's already available
-    supabase.auth.getSession().then(({ data: { session }, error }) => {
-      if (!isMounted) return;
-
-      setSession(session ?? null);
-      setUser(session?.user ?? null);
-
-      if (session?.user) {
-        fetchRoles(session.user.id).finally(() => {
-          if (isMounted) setLoading(false);
-        });
-      } else {
-        setLoading(false);
-      }
-    });
-
-    // Safety timeout to prevent infinite loading
-    const safety = setTimeout(() => {
-      if (isMounted) {
-        setLoading(false);
-      }
-    }, 10000); // Increased to 10s for slower connections
-
-    return () => {
-      isMounted = false;
-      clearTimeout(safety);
-      subscription.unsubscribe();
-    };
-  }, []);
-
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    navigate("/auth");
+    await signOut();
+    navigate("/signin");
   };
 
   if (loading) {
@@ -104,7 +30,7 @@ const Dashboard = () => {
             <CardDescription>You need to sign in to access the dashboard.</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button className="w-full" onClick={() => navigate('/auth')}>
+            <Button className="w-full" onClick={() => navigate('/signin')}>
               Go to Sign In
             </Button>
           </CardContent>
@@ -113,12 +39,20 @@ const Dashboard = () => {
     );
   }
 
-  const hasAdminRole = userRoles.includes("admin");
-  const hasKitchenRole = userRoles.includes("kitchen");
+  const hasAdminRole = roles.includes("admin");
+  const hasKitchenRole = roles.includes("kitchen");
 
   return (
     <div className="min-h-screen bg-background pattern-tile">
       <div className="container mx-auto px-4 py-8">
+        {/* Back to Home Button */}
+        <div className="mb-4">
+          <Button variant="outline" size="sm" onClick={() => navigate("/")} className="gap-2">
+            <Home className="h-4 w-4" />
+            Back to Home
+          </Button>
+        </div>
+
         {/* Header */}
         <div className="mb-8 text-center">
           <h1 className="text-4xl md:text-5xl font-serif text-foreground mb-2">
