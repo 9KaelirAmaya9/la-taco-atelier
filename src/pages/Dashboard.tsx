@@ -7,15 +7,11 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 import { LanguageSwitch } from "@/components/LanguageSwitch";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { getTranslation } from "@/data/translations";
 
 const Dashboard = () => {
   const { user, loading, roles, signOut } = useAuth();
   const navigate = useNavigate();
   const [isResetting, setIsResetting] = useState(false);
-  const { language } = useLanguage();
-  const t = (key: string) => getTranslation(language, key);
 
   const handleSignOut = async () => {
     await signOut();
@@ -35,7 +31,7 @@ const Dashboard = () => {
         .neq("id", "00000000-0000-0000-0000-000000000000");
 
       if (error) throw error;
-      
+
       toast.success("All orders have been reset successfully");
     } catch (error) {
       console.error("Error resetting orders:", error);
@@ -81,7 +77,7 @@ const Dashboard = () => {
         <div className="mb-4 flex justify-between items-center">
           <Button variant="outline" size="sm" onClick={() => navigate("/")} className="gap-2">
             <Home className="h-4 w-4" />
-            {t("dashboard.backToHome")}
+            Back to Home
           </Button>
           <LanguageSwitch />
         </div>
@@ -89,10 +85,10 @@ const Dashboard = () => {
         {/* Header */}
         <div className="mb-8 text-center">
           <h1 className="text-4xl md:text-5xl font-serif text-foreground mb-2">
-            {t("dashboard.title")}
+            Dashboard
           </h1>
           <p className="text-muted-foreground">
-            {t("dashboard.welcome")}, {user?.email}
+            Welcome back, {user?.email}
           </p>
         </div>
 
@@ -105,14 +101,14 @@ const Dashboard = () => {
                 <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
                   <ClipboardList className="h-6 w-6 text-primary" />
                 </div>
-                <CardTitle>{t("dashboard.adminPanel")}</CardTitle>
+                <CardTitle>Admin Panel</CardTitle>
                 <CardDescription>
-                  {t("dashboard.adminPanelDesc")}
+                  Manage orders, view analytics, and control user roles
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <Button className="w-full" variant="default">
-                  {t("dashboard.openAdmin")}
+                  Open Admin
                 </Button>
               </CardContent>
             </Card>
@@ -125,14 +121,14 @@ const Dashboard = () => {
                 <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center mb-4">
                   <ChefHat className="h-6 w-6 text-accent" />
                 </div>
-                <CardTitle>{t("dashboard.kitchenDisplay")}</CardTitle>
+                <CardTitle>Kitchen Display</CardTitle>
                 <CardDescription>
-                  {t("dashboard.kitchenDisplayDesc")}
+                  View and manage incoming orders in real-time
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <Button className="w-full" variant="default">
-                  {t("dashboard.openKitchen")}
+                  Open Kitchen
                 </Button>
               </CardContent>
             </Card>
@@ -144,14 +140,14 @@ const Dashboard = () => {
               <div className="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center mb-4">
                 <UserCircle className="h-6 w-6 text-secondary" />
               </div>
-              <CardTitle>{t("dashboard.myProfile")}</CardTitle>
+              <CardTitle>My Profile</CardTitle>
               <CardDescription>
-                {t("dashboard.myProfileDesc")}
+                View your account details and notification settings
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Button className="w-full" variant="default">
-                {t("dashboard.viewProfile")}
+                View Profile
               </Button>
             </CardContent>
           </Card>
@@ -162,9 +158,9 @@ const Dashboard = () => {
           <div className="mt-8 text-center">
             <Card className="max-w-md mx-auto border-muted">
               <CardHeader>
-                <CardTitle>{t("dashboard.noDashboardAccess")}</CardTitle>
+                <CardTitle>No Dashboard Access</CardTitle>
                 <CardDescription>
-                  {t("dashboard.noDashboardAccessDesc")}
+                  You don't have admin or kitchen roles assigned yet. Please contact an administrator for access.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -176,14 +172,14 @@ const Dashboard = () => {
           <div className="mt-8">
             <Card className="border-destructive/20 bg-destructive/5">
               <CardHeader>
-                <CardTitle className="text-destructive">{t("dashboard.adminActions")}</CardTitle>
+                <CardTitle className="text-destructive">Admin Actions</CardTitle>
                 <CardDescription>
-                  {t("dashboard.adminActionsDesc")}
+                  Dangerous actions that affect the entire system
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button 
-                  variant="destructive" 
+                <Button
+                  variant="destructive"
                   onClick={handleResetOrders}
                   disabled={isResetting}
                   className="gap-2"
@@ -191,12 +187,12 @@ const Dashboard = () => {
                   {isResetting ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin" />
-                      {t("dashboard.resetting")}
+                      Resetting...
                     </>
                   ) : (
                     <>
                       <RotateCcw className="h-4 w-4" />
-                      {t("dashboard.resetAllOrders")}
+                      Reset All Orders
                     </>
                   )}
                 </Button>
@@ -209,7 +205,7 @@ const Dashboard = () => {
         <div className="mt-8 text-center">
           <Button variant="outline" onClick={handleSignOut}>
             <LogOut className="mr-2 h-4 w-4" />
-            {t("dashboard.signOut")}
+            Sign Out
           </Button>
         </div>
       </div>

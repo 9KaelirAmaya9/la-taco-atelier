@@ -38,50 +38,63 @@ export function useAudioAlerts(options: UseAudioAlertsOptions = {}) {
   }, [initAudioContext]);
 
   const playNewOrderAlert = useCallback(() => {
-    if (!audioEnabled || !hasInteractedRef.current) return;
+    if (!audioEnabled || !hasInteractedRef.current) {
+      console.log('❌ Audio alert skipped - enabled:', audioEnabled, 'interacted:', hasInteractedRef.current);
+      return;
+    }
 
     try {
       const ctx = audioContextRef.current;
-      if (!ctx) return;
+      if (!ctx) {
+        console.error('❌ No audio context available');
+        return;
+      }
+
+      console.log('🔊 Starting audio alert - context state:', ctx.state);
 
       // Resume context if suspended
       if (ctx.state === 'suspended') {
-        ctx.resume();
+        ctx.resume().catch(e => console.error('Failed to resume audio context:', e));
       }
 
-      // Create a LOUD, PERSISTENT alarm sound for kitchen staff (4-7 seconds)
-      // Alternating frequency pattern to keep attention
-      const totalDuration = 5.5; // seconds - middle of 4-7 range
-      const patternDuration = 0.3;
-      const patterns = Math.floor(totalDuration / patternDuration);
-      
-      for (let i = 0; i < patterns; i++) {
-        const oscillator = ctx.createOscillator();
-        const gainNode = ctx.createGain();
+      // Create a master gain node for overall control
+      const masterGain = ctx.createGain();
+      masterGain.gain.setValueAtTime(0.7, ctx.currentTime); // 70% volume overall
+      masterGain.connect(ctx.destination);
 
-        oscillator.connect(gainNode);
-        gainNode.connect(ctx.destination);
+      // Create LOUD, PERSISTENT alarm (5.5 seconds total)
+      const totalDuration = 5.5;
+      const beepDuration = 0.2; // 200ms beeps
+      const beepInterval = 0.3; // 300ms interval
+      let currentTime = ctx.currentTime;
 
-        oscillator.type = 'square'; // Square wave = more harsh/attention-grabbing than sine
-        
-        // Alternate between 1000Hz and 1200Hz for more attention-grabbing effect
-        const frequency = i % 2 === 0 ? 1000 : 1200;
-        oscillator.frequency.setValueAtTime(frequency, ctx.currentTime + i * patternDuration);
+      while (currentTime < ctx.currentTime + totalDuration) {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
 
-        // LOUD volume (80% of max)
-        gainNode.gain.setValueAtTime(0.8, ctx.currentTime + i * patternDuration);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + i * patternDuration + patternDuration);
+        osc.connect(gain);
+        gain.connect(masterGain);
 
-        oscillator.start(ctx.currentTime + i * patternDuration);
-        oscillator.stop(ctx.currentTime + i * patternDuration + patternDuration);
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(1000, currentTime); // 1000Hz
+
+        // Envelope: attack, sustain, release
+        gain.gain.setValueAtTime(0, currentTime); // Start silent
+        gain.gain.linearRampToValueAtTime(1.0, currentTime + 0.05); // Quick attack
+        gain.gain.setValueAtTime(1.0, currentTime + beepDuration - 0.05); // Sustain
+        gain.gain.linearRampToValueAtTime(0, currentTime + beepDuration); // Quick release
+
+        osc.start(currentTime);
+        osc.stop(currentTime + beepDuration);
+
+        currentTime += beepInterval;
       }
 
-      // Log for debugging
-      console.log('🔊 NEW ORDER ALERT PLAYED - LOUD FOR 5.5 SECONDS');
+      console.log('✅ Audio alert created successfully - 5.5 seconds of beeps');
     } catch (err) {
-      console.error('Failed to play audio alert:', err);
+      console.error('❌ Failed to play audio alert:', err);
     }
-  }, [audioEnabled, audioVolume]);
+  }, [audioEnabled]);
 
   const playStatusChangeAlert = useCallback(() => {
     if (!audioEnabled || !hasInteractedRef.current) return;
