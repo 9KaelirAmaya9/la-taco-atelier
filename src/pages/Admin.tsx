@@ -16,6 +16,8 @@ import {
 } from "lucide-react";
 import { useAudioAlerts } from "@/hooks/useAudioAlerts";
 import { LanguageSwitch } from "@/components/LanguageSwitch";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { getTranslation } from "@/data/translations";
 import { 
   TodayOrdersMetric, 
   TodayRevenueMetric, 
@@ -42,6 +44,10 @@ const Admin = () => {
   const { audioEnabled, setAudioEnabled, playNewOrderAlert, initAudioContext } = useAudioAlerts();
   const previousOrderCountRef = useRef<number>(0);
   const isFirstLoadRef = useRef(true);
+  
+  // Translations
+  const { language } = useLanguage();
+  const t = (key: string) => getTranslation(language, key);
 
   const checkAuthStatus = useCallback(async () => {
     try {
@@ -96,7 +102,7 @@ const Admin = () => {
       const currentTotal = allOrdersResult.count || 0;
       if (!isFirstLoadRef.current && currentTotal > previousOrderCountRef.current) {
         playNewOrderAlert();
-        toast.success("🔔 New order received!", {
+        toast.success(`🔔 ${t("admin.newOrderReceived")}`, {
           duration: 3000,
         });
       }
@@ -130,7 +136,7 @@ const Admin = () => {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center space-y-4">
           <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
-          <p className="text-lg font-medium">Loading Admin Dashboard</p>
+          <p className="text-lg font-medium">{t("admin.loading")}</p>
         </div>
       </div>
     );
@@ -142,8 +148,8 @@ const Admin = () => {
         {/* Header */}
         <div className="flex justify-between items-start">
           <div>
-            <h1 className="text-4xl font-bold text-foreground">Admin Dashboard</h1>
-            <p className="text-muted-foreground mt-2">Welcome back! Here's your overview</p>
+            <h1 className="text-4xl font-bold text-foreground">{t("admin.title")}</h1>
+            <p className="text-muted-foreground mt-2">{t("admin.welcome")}</p>
           </div>
           <div className="flex gap-2 items-center">
             <LanguageSwitch />
@@ -153,7 +159,7 @@ const Admin = () => {
               onClick={() => {
                 initAudioContext();
                 setAudioEnabled(!audioEnabled);
-                toast.success(audioEnabled ? "🔇 Audio alerts disabled" : "🔊 Audio alerts enabled");
+                toast.success(audioEnabled ? `🔇 ${t("admin.audioDisabled")}` : `🔊 ${t("admin.audioEnabled")}`);
               }}
               title={audioEnabled ? "Disable audio alerts" : "Enable audio alerts"}
             >
@@ -163,7 +169,7 @@ const Admin = () => {
               <RefreshCw className="h-4 w-4" />
             </Button>
             <Button variant="outline" onClick={() => navigate("/dashboard")}>
-              Back to Dashboard
+              {t("admin.backToDashboard")}
             </Button>
           </div>
         </div>
@@ -174,12 +180,12 @@ const Admin = () => {
           <AlertDescription className="flex items-center gap-4 flex-wrap">
             <div className="flex items-center gap-2">
               <CheckCircle className="h-4 w-4 text-serape-green" />
-              <span className="text-sm font-medium">Authenticated:</span>
+              <span className="text-sm font-medium">{t("admin.authenticated")}</span>
               <Badge variant="secondary" className="font-mono text-xs">{userEmail}</Badge>
             </div>
             <div className="flex items-center gap-2">
               <Shield className="h-4 w-4 text-serape-purple" />
-              <span className="text-sm font-medium">Roles:</span>
+              <span className="text-sm font-medium">{t("admin.roles")}</span>
               {userRoles.map(role => (
                 <Badge key={role} variant="default" className="text-xs">{role}</Badge>
               ))}
@@ -192,7 +198,7 @@ const Admin = () => {
             <AlertCircle className="h-4 w-4" />
             <AlertDescription className="flex items-center justify-between">
               <span>{error}</span>
-              <Button onClick={loadMetrics} variant="outline" size="sm">Retry</Button>
+              <Button onClick={loadMetrics} variant="outline" size="sm">{t("admin.retry")}</Button>
             </AlertDescription>
           </Alert>
         )}

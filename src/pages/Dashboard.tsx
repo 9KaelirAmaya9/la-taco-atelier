@@ -7,11 +7,15 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 import { LanguageSwitch } from "@/components/LanguageSwitch";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { getTranslation } from "@/data/translations";
 
 const Dashboard = () => {
   const { user, loading, roles, signOut } = useAuth();
   const navigate = useNavigate();
   const [isResetting, setIsResetting] = useState(false);
+  const { language } = useLanguage();
+  const t = (key: string) => getTranslation(language, key);
 
   const handleSignOut = async () => {
     await signOut();
@@ -77,7 +81,7 @@ const Dashboard = () => {
         <div className="mb-4 flex justify-between items-center">
           <Button variant="outline" size="sm" onClick={() => navigate("/")} className="gap-2">
             <Home className="h-4 w-4" />
-            Back to Home
+            {t("dashboard.backToHome")}
           </Button>
           <LanguageSwitch />
         </div>
@@ -85,10 +89,10 @@ const Dashboard = () => {
         {/* Header */}
         <div className="mb-8 text-center">
           <h1 className="text-4xl md:text-5xl font-serif text-foreground mb-2">
-            Dashboard
+            {t("dashboard.title")}
           </h1>
           <p className="text-muted-foreground">
-            Welcome back, {user?.email}
+            {t("dashboard.welcome")}, {user?.email}
           </p>
         </div>
 
@@ -101,14 +105,14 @@ const Dashboard = () => {
                 <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
                   <ClipboardList className="h-6 w-6 text-primary" />
                 </div>
-                <CardTitle>Admin Panel</CardTitle>
+                <CardTitle>{t("dashboard.adminPanel")}</CardTitle>
                 <CardDescription>
-                  Manage orders, view analytics, and control user roles
+                  {t("dashboard.adminPanelDesc")}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <Button className="w-full" variant="default">
-                  Open Admin
+                  {t("dashboard.openAdmin")}
                 </Button>
               </CardContent>
             </Card>
@@ -121,14 +125,14 @@ const Dashboard = () => {
                 <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center mb-4">
                   <ChefHat className="h-6 w-6 text-accent" />
                 </div>
-                <CardTitle>Kitchen Display</CardTitle>
+                <CardTitle>{t("dashboard.kitchenDisplay")}</CardTitle>
                 <CardDescription>
-                  View and manage incoming orders in real-time
+                  {t("dashboard.kitchenDisplayDesc")}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <Button className="w-full" variant="default">
-                  Open Kitchen
+                  {t("dashboard.openKitchen")}
                 </Button>
               </CardContent>
             </Card>
@@ -140,14 +144,14 @@ const Dashboard = () => {
               <div className="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center mb-4">
                 <UserCircle className="h-6 w-6 text-secondary" />
               </div>
-              <CardTitle>My Profile</CardTitle>
+              <CardTitle>{t("dashboard.myProfile")}</CardTitle>
               <CardDescription>
-                View your account details and notification settings
+                {t("dashboard.myProfileDesc")}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Button className="w-full" variant="default">
-                View Profile
+                {t("dashboard.viewProfile")}
               </Button>
             </CardContent>
           </Card>
@@ -158,9 +162,9 @@ const Dashboard = () => {
           <div className="mt-8 text-center">
             <Card className="max-w-md mx-auto border-muted">
               <CardHeader>
-                <CardTitle>No Dashboard Access</CardTitle>
+                <CardTitle>{t("dashboard.noDashboardAccess")}</CardTitle>
                 <CardDescription>
-                  You don't have admin or kitchen roles assigned yet. Please contact an administrator for access.
+                  {t("dashboard.noDashboardAccessDesc")}
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -172,9 +176,9 @@ const Dashboard = () => {
           <div className="mt-8">
             <Card className="border-destructive/20 bg-destructive/5">
               <CardHeader>
-                <CardTitle className="text-destructive">Admin Actions</CardTitle>
+                <CardTitle className="text-destructive">{t("dashboard.adminActions")}</CardTitle>
                 <CardDescription>
-                  Dangerous actions that affect the entire system
+                  {t("dashboard.adminActionsDesc")}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -187,12 +191,12 @@ const Dashboard = () => {
                   {isResetting ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin" />
-                      Resetting...
+                      {t("dashboard.resetting")}
                     </>
                   ) : (
                     <>
                       <RotateCcw className="h-4 w-4" />
-                      Reset All Orders
+                      {t("dashboard.resetAllOrders")}
                     </>
                   )}
                 </Button>
@@ -205,7 +209,7 @@ const Dashboard = () => {
         <div className="mt-8 text-center">
           <Button variant="outline" onClick={handleSignOut}>
             <LogOut className="mr-2 h-4 w-4" />
-            Sign Out
+            {t("dashboard.signOut")}
           </Button>
         </div>
       </div>

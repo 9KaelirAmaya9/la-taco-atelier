@@ -14,6 +14,8 @@ import { printReceipt } from "@/utils/printReceipt";
 import { cn } from "@/lib/utils";
 import { LanguageSwitch } from "@/components/LanguageSwitch";
 import { useAudioAlerts } from "@/hooks/useAudioAlerts";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { getTranslation } from "@/data/translations";
 import type { Order, OrderStatus } from "@/hooks/useOrders";
 
 const statusColors: Record<string, string> = {
@@ -36,6 +38,10 @@ export default function AdminOrders() {
   const { audioEnabled, setAudioEnabled, playNewOrderAlert, initAudioContext } = useAudioAlerts();
   const previousOrderCountRef = useRef<number>(0);
   const isFirstLoadRef = useRef(true);
+  
+  // Translations
+  const { language } = useLanguage();
+  const t = (key: string) => getTranslation(language, key);
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -66,7 +72,7 @@ export default function AdminOrders() {
       // Play sound alert if order count increased (new order detected)
       if (!isFirstLoadRef.current && ordersData.length > previousOrderCountRef.current) {
         playNewOrderAlert();
-        toast.success("🔔 New order received!", {
+        toast.success(`🔔 ${t("admin.newOrderReceived")}`, {
           duration: 3000,
         });
       }
@@ -112,9 +118,9 @@ export default function AdminOrders() {
     try {
       const { error } = await supabase.from("orders").update({ status: newStatus }).eq("id", orderId);
       if (error) throw error;
-      toast.success("Status updated");
+      toast.success(t("adminOrders.statusUpdated"));
     } catch (error) {
-      toast.error("Failed to update");
+      toast.error(t("adminOrders.failedToUpdate"));
       fetchOrders();
     }
   }, [fetchOrders]);
@@ -133,8 +139,8 @@ export default function AdminOrders() {
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-3xl font-bold">Order Tracking</h1>
-            <p className="text-muted-foreground">{filteredOrders.length} orders</p>
+            <h1 className="text-3xl font-bold">{t("adminOrders.title")}</h1>
+            <p className="text-muted-foreground">{filteredOrders.length} {t("adminOrders.orders")}</p>
           </div>
           <div className="flex items-center gap-3">
             <LanguageSwitch />
@@ -144,7 +150,7 @@ export default function AdminOrders() {
               onClick={() => {
                 initAudioContext();
                 setAudioEnabled(!audioEnabled);
-                toast.success(audioEnabled ? "🔇 Audio alerts disabled" : "🔊 Audio alerts enabled");
+                toast.success(audioEnabled ? `🔇 ${t("admin.audioDisabled")}` : `🔊 ${t("admin.audioEnabled")}`);
               }}
               title={audioEnabled ? "Disable audio alerts" : "Enable audio alerts"}
             >
@@ -155,10 +161,10 @@ export default function AdminOrders() {
               isOnline ? 'bg-serape-green/10 text-serape-green' : 'bg-destructive/10 text-destructive'
             )}>
               {isOnline ? <Wifi className="h-3 w-3" /> : <WifiOff className="h-3 w-3" />}
-              {isOnline ? 'Live' : 'Offline'}
+              {isOnline ? t("adminOrders.live") : t("adminOrders.offline")}
             </div>
             <Button onClick={fetchOrders} variant="outline" size="sm">
-              <RefreshCw className="h-4 w-4 mr-2" /> Refresh
+              <RefreshCw className="h-4 w-4 mr-2" /> {t("adminOrders.refresh")}
             </Button>
           </div>
         </div>
@@ -168,17 +174,17 @@ export default function AdminOrders() {
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1 relative">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input placeholder="Search orders..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-9" />
+                <Input placeholder={t("adminOrders.searchPlaceholder")} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-9" />
               </div>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="w-full md:w-[180px]"><SelectValue placeholder="Filter" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="preparing">Preparing</SelectItem>
-                  <SelectItem value="ready">Ready</SelectItem>
-                  <SelectItem value="completed">Completed</SelectItem>
-                  <SelectItem value="cancelled">Cancelled</SelectItem>
+                  <SelectItem value="all">{t("adminOrders.filterAll")}</SelectItem>
+                  <SelectItem value="pending">{t("adminOrders.filterPending")}</SelectItem>
+                  <SelectItem value="preparing">{t("adminOrders.filterPreparing")}</SelectItem>
+                  <SelectItem value="ready">{t("adminOrders.filterReady")}</SelectItem>
+                  <SelectItem value="completed">{t("adminOrders.filterCompleted")}</SelectItem>
+                  <SelectItem value="cancelled">{t("adminOrders.filterCancelled")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -186,20 +192,20 @@ export default function AdminOrders() {
         </Card>
 
         <Card>
-          <CardHeader><CardTitle>Orders</CardTitle></CardHeader>
+          <CardHeader><CardTitle>{t("adminOrders.ordersTitle")}</CardTitle></CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Order #</TableHead>
-                    <TableHead>Time</TableHead>
-                    <TableHead>Customer</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Items</TableHead>
-                    <TableHead>Total</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
+                    <TableHead>{t("adminOrders.orderNumber")}</TableHead>
+                    <TableHead>{t("adminOrders.time")}</TableHead>
+                    <TableHead>{t("adminOrders.customer")}</TableHead>
+                    <TableHead>{t("adminOrders.type")}</TableHead>
+                    <TableHead>{t("adminOrders.items")}</TableHead>
+                    <TableHead>{t("adminOrders.total")}</TableHead>
+                    <TableHead>{t("adminOrders.status")}</TableHead>
+                    <TableHead>{t("adminOrders.actions")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -239,7 +245,7 @@ export default function AdminOrders() {
                 </TableBody>
               </Table>
             </div>
-            {filteredOrders.length === 0 && <div className="text-center py-8 text-muted-foreground">No orders found</div>}
+            {filteredOrders.length === 0 && <div className="text-center py-8 text-muted-foreground">{t("adminOrders.noOrders")}</div>}
           </CardContent>
         </Card>
       </div>
