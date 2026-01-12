@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { printReceipt } from "@/utils/printReceipt";
 import { cn } from "@/lib/utils";
+import { LanguageSwitch } from "@/components/LanguageSwitch";
 import type { Order, OrderStatus } from "@/hooks/useOrders";
 
 const statusColors: Record<string, string> = {
@@ -119,6 +120,7 @@ export default function AdminOrders() {
             <p className="text-muted-foreground">{filteredOrders.length} orders</p>
           </div>
           <div className="flex items-center gap-3">
+            <LanguageSwitch />
             <div className={cn(
               'flex items-center gap-1 px-2 py-1 rounded text-xs',
               isOnline ? 'bg-serape-green/10 text-serape-green' : 'bg-destructive/10 text-destructive'

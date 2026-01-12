@@ -20,6 +20,7 @@ import {
 } from "@/components/admin/MetricCard";
 import { QuickActionsGrid } from "@/components/admin/QuickActionsGrid";
 import { RecentOrdersList } from "@/components/admin/OrderRow";
+import { LanguageSwitch } from "@/components/LanguageSwitch";
 import type { Order } from "@/hooks/useOrders";
 
 const Admin = () => {
@@ -124,7 +125,8 @@ const Admin = () => {
             <h1 className="text-4xl font-bold text-foreground">Admin Dashboard</h1>
             <p className="text-muted-foreground mt-2">Welcome back! Here's your overview</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
+            <LanguageSwitch />
             <Button variant="outline" size="icon" onClick={loadMetrics}>
               <RefreshCw className="h-4 w-4" />
             </Button>
