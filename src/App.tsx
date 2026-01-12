@@ -4,11 +4,11 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
-import { CartProvider } from "@/contexts/CartContext";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { CartProvider } from "@/contexts/CartContext";
 import { ConditionalFloatingButtons } from "@/components/ConditionalFloatingButtons";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import "@/utils/adminDiagnostics"; // Load admin diagnostics for console debugging
+import { MobileLayout } from "@/components/mobile/MobileLayout";
 import Index from "./pages/Index";
 import Menu from "./pages/Menu";
 import Order from "./pages/Order";
@@ -25,6 +25,7 @@ import AdminOrders from "./pages/AdminOrders";
 import AdminRoles from "./pages/AdminRoles";
 import AdminPasswordManagement from "./pages/AdminPasswordManagement";
 import Kitchen from "./pages/Kitchen";
+import KitchenLogin from "./pages/KitchenLogin";
 import Dashboard from "./pages/Dashboard";
 import OrderSuccess from "./pages/OrderSuccess";
 import NotFound from "./pages/NotFound";
@@ -32,6 +33,8 @@ import ServerError from "./pages/ServerError";
 import MenuCatalog from "./pages/MenuCatalog";
 import DatabaseVerification from "./pages/DatabaseVerification";
 import AdminAnalytics from "./pages/AdminAnalytics";
+import AdminMenu from "./pages/AdminMenu";
+import Bootstrap from "./pages/Bootstrap";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 // Configure React Query with optimized defaults
@@ -50,12 +53,13 @@ const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
-        <CartProvider>
-          <AuthProvider>
+        <AuthProvider>
+          <CartProvider>
             <TooltipProvider>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <MobileLayout>
                 <Routes>
                   <Route path="/" element={<Index />} />
                   <Route path="/menu" element={<Menu />} />
@@ -70,77 +74,31 @@ const App = () => (
 
                   <Route path="/signin" element={<SignIn />} />
                   <Route path="/signup" element={<SignUp />} />
-                  {/* Kitchen login removed - admins access kitchen via dashboard */}
+                  <Route path="/bootstrap" element={<Bootstrap />} />
+                  <Route path="/kitchen-login" element={<KitchenLogin />} />
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/order-history" element={<OrderHistory />} />
                   <Route path="/logout" element={<Logout />} />
-                  <Route
-                    path="/admin"
-                    element={
-                      <ProtectedRoute requiredRole="admin">
-                        <Admin />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/admin/orders"
-                    element={
-                      <ProtectedRoute requiredRole="admin">
-                        <AdminOrders />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/admin/analytics"
-                    element={
-                      <ProtectedRoute requiredRole="admin">
-                        <AdminAnalytics />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/admin/roles"
-                    element={
-                      <ProtectedRoute requiredRole="admin">
-                        <AdminRoles />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/admin/passwords"
-                    element={
-                      <ProtectedRoute requiredRole="admin">
-                        <AdminPasswordManagement />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/admin/verify"
-                    element={
-                      <ProtectedRoute requiredRole="admin">
-                        <DatabaseVerification />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/kitchen"
-                    element={
-                      <ProtectedRoute requiredRole="admin">
-                        <Kitchen />
-                      </ProtectedRoute>
-                    }
-                  />
+                  <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><Admin /></ProtectedRoute>} />
+                  <Route path="/admin/orders" element={<ProtectedRoute requiredRole="admin"><AdminOrders /></ProtectedRoute>} />
+                  <Route path="/admin/analytics" element={<ProtectedRoute requiredRole="admin"><AdminAnalytics /></ProtectedRoute>} />
+                  <Route path="/admin/menu" element={<ProtectedRoute requiredRole="admin"><AdminMenu /></ProtectedRoute>} />
+                  <Route path="/admin/roles" element={<ProtectedRoute requiredRole="admin"><AdminRoles /></ProtectedRoute>} />
+                  <Route path="/admin/passwords" element={<ProtectedRoute requiredRole="admin"><AdminPasswordManagement /></ProtectedRoute>} />
+                  <Route path="/admin/verify" element={<ProtectedRoute requiredRole="admin"><DatabaseVerification /></ProtectedRoute>} />
+                  <Route path="/kitchen" element={<ProtectedRoute requiredRole="kitchen"><Kitchen /></ProtectedRoute>} />
                   <Route path="/order-success" element={<OrderSuccess />} />
                   <Route path="/500" element={<ServerError />} />
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
                 <ConditionalFloatingButtons />
-              </BrowserRouter>
+              </MobileLayout>
+            </BrowserRouter>
             </TooltipProvider>
-          </AuthProvider>
-        </CartProvider>
+          </CartProvider>
+        </AuthProvider>
       </LanguageProvider>
     </QueryClientProvider>
   </ErrorBoundary>

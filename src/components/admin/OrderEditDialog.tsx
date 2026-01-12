@@ -20,11 +20,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import type { Tables } from "@/integrations/supabase/types";
 import { Plus, Trash2, Loader2 } from "lucide-react";
-
-// Use Supabase type directly
-type Order = Tables<"orders">;
 
 interface OrderItem {
   name: string;
@@ -32,12 +28,22 @@ interface OrderItem {
   price: number;
 }
 
-// Helper to safely get items as array
-function getItems(items: unknown): OrderItem[] {
-  if (Array.isArray(items)) {
-    return items as OrderItem[];
-  }
-  return [];
+interface Order {
+  id: string;
+  order_number: string;
+  customer_name: string;
+  customer_phone: string;
+  customer_email: string | null;
+  order_type: string;
+  status: string;
+  items: OrderItem[];
+  subtotal: number;
+  tax: number;
+  total: number;
+  delivery_address: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 interface OrderEditDialogProps {
@@ -54,23 +60,7 @@ export function OrderEditDialog({
   onOrderUpdated,
 }: OrderEditDialogProps) {
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState<{
-    customer_name: string;
-    customer_phone: string;
-    customer_email: string | null;
-    order_type: string;
-    status: string;
-    delivery_address: string | null;
-    notes: string | null;
-  }>({
-    customer_name: "",
-    customer_phone: "",
-    customer_email: null,
-    order_type: "pickup",
-    status: "pending",
-    delivery_address: null,
-    notes: null,
-  });
+  const [formData, setFormData] = useState<Partial<Order>>({});
   const [items, setItems] = useState<OrderItem[]>([]);
 
   useEffect(() => {
@@ -84,7 +74,7 @@ export function OrderEditDialog({
         delivery_address: order.delivery_address,
         notes: order.notes,
       });
-      setItems([...getItems(order.items)]);
+      setItems([...order.items]);
     }
   }, [order]);
 
@@ -168,7 +158,7 @@ export function OrderEditDialog({
           status: formData.status,
           delivery_address: formData.delivery_address || null,
           notes: formData.notes || null,
-          items: JSON.parse(JSON.stringify(items)),
+          items: items,
           subtotal,
           tax,
           total,
