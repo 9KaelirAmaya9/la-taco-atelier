@@ -13,7 +13,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { OrderNotesPanel } from "@/components/admin/OrderNotesPanel";
 import { supabase } from "@/integrations/supabase/client";
 import { format, formatDistanceToNow } from "date-fns";
-import type { Tables } from "@/integrations/supabase/types";
 import {
   Phone,
   Mail,
@@ -26,21 +25,29 @@ import {
   Loader2,
 } from "lucide-react";
 
-// Use Supabase type directly
-type Order = Tables<"orders">;
-
 interface OrderItem {
   name: string;
   quantity: number;
   price: number;
 }
 
-// Helper to safely get items as array
-function getItems(items: unknown): OrderItem[] {
-  if (Array.isArray(items)) {
-    return items as OrderItem[];
-  }
-  return [];
+interface Order {
+  id: string;
+  order_number: string;
+  customer_name: string;
+  customer_phone: string;
+  customer_email: string | null;
+  order_type: string;
+  status: string;
+  items: OrderItem[];
+  subtotal: number;
+  tax: number;
+  total: number;
+  delivery_address: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+  user_id: string | null;
 }
 
 interface OrderDetailsDialogProps {
@@ -79,7 +86,7 @@ export function OrderDetailsDialog({
         .limit(10);
 
       if (error) throw error;
-      setCustomerOrders(data || []);
+      setCustomerOrders((data as Order[]) || []);
     } catch (error) {
       console.error("Error fetching customer history:", error);
       setCustomerOrders([]);
@@ -112,8 +119,6 @@ export function OrderDetailsDialog({
   };
 
   if (!order) return null;
-
-  const orderItems = getItems(order.items);
 
   const totalSpent = customerOrders.reduce((sum, o) => {
     if (o.status !== "cancelled") {
@@ -202,25 +207,26 @@ export function OrderDetailsDialog({
             <div>
               <h3 className="text-lg font-semibold mb-3">Items</h3>
               <div className="space-y-2">
-                {orderItems.map((item, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between bg-muted/50 rounded-lg p-3"
-                  >
-                    <div className="flex-1">
-                      <div className="font-medium">{item.name}</div>
-                      <div className="text-sm text-muted-foreground">
-                        ${item.price.toFixed(2)} each
+                {Array.isArray(order.items) &&
+                  order.items.map((item, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between bg-muted/50 rounded-lg p-3"
+                    >
+                      <div className="flex-1">
+                        <div className="font-medium">{item.name}</div>
+                        <div className="text-sm text-muted-foreground">
+                          ${item.price.toFixed(2)} each
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-medium">x{item.quantity}</div>
+                        <div className="text-sm text-muted-foreground">
+                          ${(item.price * item.quantity).toFixed(2)}
+                        </div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div className="font-medium">x{item.quantity}</div>
-                      <div className="text-sm text-muted-foreground">
-                        ${(item.price * item.quantity).toFixed(2)}
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                  ))}
               </div>
 
               <Separator className="my-4" />
