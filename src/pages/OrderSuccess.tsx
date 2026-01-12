@@ -38,19 +38,41 @@ const OrderSuccess = () => {
         return;
       }
 
-      try {
-        const { data, error } = await supabase
-          .from("orders")
-          .select("*")
-          .eq("order_number", orderNumber)
-          .single();
+      // Retry logic for order fetch with exponential backoff
+      let retries = 0;
+      const maxRetries = 5;
+      const retryDelay = (attempt: number) => Math.min(1000 * Math.pow(2, attempt), 10000);
 
-        if (error) throw error;
-        setOrderDetails(data);
-      } catch (error) {
-        console.error("Error fetching order:", error);
-      } finally {
-        setLoading(false);
+      while (retries < maxRetries) {
+        try {
+          const { data, error } = await supabase
+            .from("orders")
+            .select("*")
+            .eq("order_number", orderNumber)
+            .single();
+
+          if (error) {
+            // If not found and not yet max retries, wait and retry
+            if (error.code === "PGRST116" && retries < maxRetries - 1) {
+              await new Promise(resolve => setTimeout(resolve, retryDelay(retries)));
+              retries++;
+              continue;
+            }
+            throw error;
+          }
+          
+          setOrderDetails(data);
+          setLoading(false);
+          return;
+        } catch (error) {
+          if (retries < maxRetries - 1) {
+            await new Promise(resolve => setTimeout(resolve, retryDelay(retries)));
+            retries++;
+            continue;
+          }
+          console.error("Error fetching order after retries:", error);
+          setLoading(false);
+        }
       }
     };
 
